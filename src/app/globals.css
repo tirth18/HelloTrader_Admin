@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --max-width: 1600px;
+  --border-radius: 10px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 68px;
+
+  /* Light theme variables */
+  --light-bg: #f8fafc;
+  --light-paper: #ffffff;
+  --light-text-primary: #1e293b;
+  --light-text-secondary: #64748b;
+  --light-divider: rgba(100, 116, 139, 0.12);
+  
+  /* Dark theme variables */
+  --dark-bg: #0f172a;
+  --dark-paper: #1e293b;
+  --dark-text-primary: #f1f5f9;
+  --dark-text-secondary: #94a3b8;
+  --dark-divider: rgba(148, 163, 184, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Chart.js tooltip styles to avoid FOUC */
+.chartjs-tooltip {
+  opacity: 0;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #1e293b;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, 0);
+  transition: all 0.2s ease;
+}
+
+/* Fix for tables */
+.MuiTableCell-root {
+  padding: 16px !important;
+}
+
+/* Dark mode overrides for non-MUI elements */
+[data-theme='dark'] .chartjs-tooltip {
+  background: rgba(15, 23, 42, 0.95);
+  color: #f1f5f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Dark mode scrollbar */
+.dark-mode::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark-mode::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.dark-mode {
+  scrollbar-color: #475569 transparent;
+}
+
+/* Animations and transitions */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Fix for MUI nested components */
+.MuiContainer-root .MuiContainer-root {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Dashboard container */
+.dashboard-container {
+  transition: all 0.3s ease;
+}
+
+/* Gradient text utility class */
+.gradient-text {
+  background: linear-gradient(90deg, #2563eb, #0891b2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive fixes */
+@media (max-width: 600px) {
+  .MuiCard-root {
+    border-radius: 8px !important;
+  }
+  
+  :root {
+    --border-radius: 8px;
+  }
+}
+
+/* Accessibility improvements */
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.dark-mode :focus-visible {
+  outline: 2px solid #3b82f6;
+}
+
+/* Utility classes */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-height {
+  height: 100%;
+}
+
+/* Dashboard layouts - Remove margin between sidebar and content */
+.MuiBox-root.mui-igehcq {
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .MuiBox-root.mui-igehcq {
+    width: calc(100% - var(--sidebar-width));
+    margin-left: var(--sidebar-width);
+  }
+}
+
+@media (max-width: 899px) {
+  .MuiBox-root.mui-igehcq {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* Fix drawer alignment */
+.MuiDrawer-root.MuiDrawer-docked .MuiDrawer-paper {
+  /* width: var(--sidebar-width); */
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+}
+
+/* Fix for mui-j6lc4g to ensure it doesn't overlap with the sidebar */
+.MuiBox-root.mui-j6lc4g {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+@media (min-width: 900px) {
+  .MuiBox-root.mui-j6lc4g {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Additional fix for specific media query issue */
+@media (min-width: 900px) {
+  .mui-j6lc4g {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Reset any margin utilities that might interfere */
+.MuiBox-root.mui-j6lc4g {
+  margin-left: 0 !important;
+}
+
+/* More general fix for any dynamically generated classes */
+[class*="mui-"] {
+  box-sizing: border-box;
+}
+
+/* Spacing fix for main content */
+main {
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Target the main dashboard container directly */
+@media (min-width: 900px) {
+  [class*="mui-"].MuiBox-root {
+   
+    border-radius: 0px !important;
+  }
+  
+  body .MuiBox-root > .MuiBox-root {
+    padding: 0 !important;
+  }
+} 
+
+.mui-1peypng-MuiButtonBase-root-MuiListItemButton-root {
+  padding-left: 45px !important;
+}
+
+.mui-6wd1g{
+  margin-left: 0px !important;
+}
+
+.mui-7ggicc{
+  border-radius: 0px !important
+}
+
+.mui-1x328xk-MuiContainer-root{
+  padding-top: 70px !important;
+}
+
+.mui-dw2ka0-MuiTableCell-root{
+  color: #1e293b !important;
+}
+
+.mui-13qkpa5-MuiTableHead-root{
+  color: #1e293b !important;
+}
+
+.mui-1s8e9z2-MuiTableCell-root{
+  color: #1e293b !important;
+}
+
+.mui-188hk0b-MuiContainer-root{
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+@media (min-width: 600px) {
+  .mui-15snhqw {
+      margin-left: calc(20px + 1px) !important;
+      width: calc(100% - 95px - 1px) !important;
+  }
+}

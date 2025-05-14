@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  username      String         @unique
+  password_hash String
+  is_active     Boolean        @default(true)
+  is_superuser  Boolean        @default(false)
+  is_verified   Boolean        @default(false)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  last_login    DateTime?
+  roles         Role[]
+  sessions      UserSession[]
+  audit_logs    AuditLog[]
+  orders        Order[]
+  trades        Trade[]
+  accounts      TradingAccount[]
+  kyc_verifications KYCVerification[]
+  aml_alerts    AMLAlert[]
+  compliance_violations ComplianceViolation[]
+  notifications Notification[]
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  users       User[]
+  permissions Permission[]
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  roles       Role[]
+}
+
+model UserSession {
+  id        String   @id @default(uuid())
+  user_id   String
+  token     String   @unique
+  expires_at DateTime
+  created_at DateTime @default(now())
+  user      User     @relation(fields: [user_id], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String
+  action     String
+  details    String?
+  ip_address String?
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Instrument {
+  id              String   @id @default(uuid())
+  symbol          String   @unique
+  name            String
+  type            String
+  exchange        String
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  market_hours    MarketHours[]
+  trading_holidays TradingHoliday[]
+  trading_pairs_base TradingPair[] @relation("BaseInstrument")
+  trading_pairs_quote TradingPair[] @relation("QuoteInstrument")
+  orders          Order[]
+  trades          Trade[]
+  positions       Position[]
+  risk_settings   RiskSettings[]
+}
+
+model MarketHours {
+  id           String   @id @default(uuid())
+  instrument_id String
+  day_of_week  Int
+  open_time    String
+  close_time   String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  instrument   Instrument @relation(fields: [instrument_id], references: [id])
+}
+
+model TradingHoliday {
+  id           String   @id @default(uuid())
+  instrument_id String
+  date         DateTime
+  description  String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  instrument   Instrument @relation(fields: [instrument_id], references: [id])
+}
+
+model TradingPair {
+  id              String   @id @default(uuid())
+  base_instrument_id String
+  quote_instrument_id String
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  base_instrument  Instrument @relation("BaseInstrument", fields: [base_instrument_id], references: [id])
+  quote_instrument Instrument @relation("QuoteInstrument", fields: [quote_instrument_id], references: [id])
+}
+
+model RiskSettings {
+  id                String   @id @default(uuid())
+  instrument_id     String
+  max_position_size Float
+  max_leverage      Float
+  margin_requirement Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  instrument        Instrument @relation(fields: [instrument_id], references: [id])
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  instrument_id   String
+  user_id         String
+  type            String
+  side            String
+  quantity        Float
+  price           Float?
+  status          String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  instrument      Instrument @relation(fields: [instrument_id], references: [id])
+  user            User     @relation(fields: [user_id], references: [id])
+  trades          Trade[]
+}
+
+model Trade {
+  id              String   @id @default(uuid())
+  order_id        String
+  instrument_id   String
+  user_id         String
+  quantity        Float
+  price           Float
+  fee             Float    @default(0)
+  created_at      DateTime @default(now())
+  order           Order    @relation(fields: [order_id], references: [id])
+  instrument      Instrument @relation(fields: [instrument_id], references: [id])
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model TradingAccount {
+  id              String   @id @default(uuid())
+  user_id         String
+  balance         Float
+  margin_used     Float
+  margin_available Float
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  user            User     @relation(fields: [user_id], references: [id])
+  positions       Position[]
+}
+
+model Position {
+  id                String   @id @default(uuid())
+  account_id        String
+  instrument_id     String
+  quantity          Float
+  average_price     Float
+  unrealized_pnl    Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  account           TradingAccount @relation(fields: [account_id], references: [id])
+  instrument        Instrument @relation(fields: [instrument_id], references: [id])
+}
+
+model KYCVerification {
+  id              String   @id @default(uuid())
+  user_id         String
+  status          String
+  document_type   String
+  document_number String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  user            User     @relation(fields: [user_id], references: [id])
+  documents       KYCDocument[]
+}
+
+model KYCDocument {
+  id                String   @id @default(uuid())
+  verification_id   String
+  file_path        String
+  file_type        String
+  created_at       DateTime @default(now())
+  verification     KYCVerification @relation(fields: [verification_id], references: [id])
+}
+
+model AMLAlert {
+  id              String   @id @default(uuid())
+  user_id         String
+  type            String
+  severity        String
+  status          String
+  details         String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model ComplianceRule {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  description     String?
+  type            String
+  parameters      String?
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  violations      ComplianceViolation[]
+}
+
+model ComplianceViolation {
+  id              String   @id @default(uuid())
+  rule_id         String
+  user_id         String
+  details         String?
+  status          String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  rule            ComplianceRule @relation(fields: [rule_id], references: [id])
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model Notification {
+  id              String   @id @default(uuid())
+  user_id         String
+  title           String
+  message         String
+  type            String
+  is_read         Boolean  @default(false)
+  created_at      DateTime @default(now())
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model NotificationTemplate {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  title_template  String
+  body_template   String
+  type            String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model Report {
+  id              String   @id @default(uuid())
+  name            String
+  type            String
+  parameters      String?
+  file_path       String?
+  status          String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model ReportTemplate {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  description     String?
+  query_template  String
+  parameters      String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model ReportSchedule {
+  id              String   @id @default(uuid())
+  template_id     String
+  name            String
+  cron_expression String
+  parameters      String?
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model ActionLedger {
+  id          String   @id @default(uuid())
+  message     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+} 
