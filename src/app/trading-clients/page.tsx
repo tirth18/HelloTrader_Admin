@@ -141,7 +141,7 @@ export default function TradingClientsPage() {
       <Box sx={{ p: { xs: 1, sm: 3 } }}>
         {/* Page Title */}
         <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 3 }}>
-          Trading Clients
+          Trading Client
         </Typography>
         {/* Filter/Search Bar */}
         <Paper elevation={0} sx={{ mb: 3, p: { xs: 2, sm: 3 }, borderRadius: 2, bgcolor: theme.palette.background.paper, boxShadow: 'none', border: `1px solid ${alpha(theme.palette.divider, 0.08)}` }}>
