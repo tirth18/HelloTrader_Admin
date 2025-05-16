@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,16 +8,30 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import CreateUserForm, { Broker } from '../CreateUserForm';
 
-import CreateUserForm from './CreateUserForm';
+export type { Broker };
 
 interface BrokerFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (broker: any) => void;
+  onSubmit: (broker: Broker) => void;
+  existingBrokers: Array<{ id: string; name: string }>;
+  isSubmitting?: boolean;
 }
 
-const BrokerForm: React.FC<BrokerFormProps> = ({ open, onClose, onSubmit }) => {
+const BrokerForm: React.FC<BrokerFormProps> = ({ 
+  open, 
+  onClose, 
+  onSubmit,
+  existingBrokers,
+  isSubmitting = false
+}) => {
+  const handleGenerateReferenceCode = () => {
+    // Generate a unique reference code
+    return `REF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>
@@ -36,7 +50,12 @@ const BrokerForm: React.FC<BrokerFormProps> = ({ open, onClose, onSubmit }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        <CreateUserForm onSubmitForm={onSubmit} />
+        <CreateUserForm 
+          onSubmit={onSubmit}
+          onGenerateReferenceCode={handleGenerateReferenceCode}
+          existingBrokers={existingBrokers}
+          isSubmitting={isSubmitting}
+        />
       </DialogContent>
     </Dialog>
   );

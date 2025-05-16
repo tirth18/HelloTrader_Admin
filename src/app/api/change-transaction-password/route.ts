@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const token = authHeader.split(" ")[1];
     const userData = authUtils.verifyToken(token);
 
-    if (!userData || !userData.id) {
+    if (!userData || typeof userData !== "object" || !("id" in userData)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

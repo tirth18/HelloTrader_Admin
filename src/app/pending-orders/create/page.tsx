@@ -63,7 +63,9 @@ export default function CreatePendingOrderPage() {
   ];
 
   // Handle form input changes
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
+  ) => {
     const { name, value } = event.target;
     setFormData(prev => ({
       ...prev,

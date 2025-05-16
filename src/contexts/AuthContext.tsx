@@ -19,7 +19,7 @@ interface AuthContextType {
   error: string | null;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-  getToken: () => string;
+  getToken: () => Promise<string>;
   clearError: () => void;
 }
 
@@ -31,7 +31,7 @@ const AuthContext = createContext<AuthContextType>({
   error: null,
   login: async () => false,
   logout: () => {},
-  getToken: () => '',
+  getToken: async () => '',
   clearError: () => {},
 });
 
@@ -175,8 +175,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     router.push('/login');
   }, [router]);
 
-  // Get token function - synchronous version
-  const getToken = useCallback(() => {
+  // Get token function - updated to return a Promise for consistency
+  const getToken = useCallback(async () => {
     if (typeof window === 'undefined') {
       return '';
     }

@@ -11,6 +11,7 @@ import {
   Select,
   MenuItem,
   IconButton,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -45,7 +46,9 @@ const NotificationsPage = () => {
     },
   ]);
 
-  const handleInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => {
+  const handleInputChange = (field: string) => (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
+  ) => {
     setNotificationData(prev => ({
       ...prev,
       [field]: event.target.value

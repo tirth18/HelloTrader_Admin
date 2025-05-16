@@ -4,9 +4,12 @@ import React from 'react';
 import ClientProviders from '@/components/providers/ClientProviders';
 import './globals.css';
 import { LoadingProvider } from '../contexts/LoadingContext';
-import { ThemeProvider } from '../theme/ThemeProvider';
+import { ThemeProvider } from '@mui/material/styles';
 import { store } from '../store';
 import { Provider } from 'react-redux';
+import { QueryProvider } from '../providers/QueryProvider';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from '../theme';
 
 export default function RootLayout({
   children,
@@ -17,11 +20,14 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Provider store={store}>
-          <ThemeProvider>
-            <LoadingProvider>
-              <ClientProviders>{children}</ClientProviders>
-            </LoadingProvider>
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <LoadingProvider>
+                <ClientProviders>{children}</ClientProviders>
+              </LoadingProvider>
+            </ThemeProvider>
+          </QueryProvider>
         </Provider>
       </body>
     </html>

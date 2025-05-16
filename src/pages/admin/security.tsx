@@ -29,6 +29,7 @@ import {
     Tabs,
     Alert,
     Snackbar,
+    SelectChangeEvent,
 } from '@mui/material';
 import {
     Security as SecurityIcon,
@@ -116,7 +117,7 @@ const SecurityPage: React.FC = () => {
     };
 
     // Handle select change
-    const handleSelectChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
+    const handleSelectChange = (event: SelectChangeEvent) => {
         const { name, value } = event.target;
         setAuthSettings({
             ...authSettings,

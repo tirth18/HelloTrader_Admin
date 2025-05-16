@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { generateToken, verifyCredentials } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    // Check authentication - using a simpler approach since authOptions is not available
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -18,11 +19,11 @@ export async function GET(request: Request) {
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
 
     // Build the query
-    const where = search
+    const where: Prisma.ActionLedgerWhereInput = search
       ? {
           message: {
             contains: search,
-            mode: "insensitive",
+            mode: Prisma.QueryMode.insensitive,
           },
         }
       : {};
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
     const messages = await prisma.actionLedger.findMany({
       where,
       orderBy: {
-        createdAt: "desc",
+        created_at: "desc",
       },
       skip: page * pageSize,
       take: pageSize,

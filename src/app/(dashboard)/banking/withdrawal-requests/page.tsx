@@ -315,7 +315,7 @@ export default function WithdrawalRequestsPage() {
     if (selectedRequests.length === withdrawalRequests.length) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(withdrawalRequests.map(req => req.id));
+      setSelectedRequests(withdrawalRequests.map(req => String(req.id)));
     }
   };
 
@@ -326,12 +326,12 @@ export default function WithdrawalRequestsPage() {
       setLoading(true);
       
       const updatedRequests = withdrawalRequests.map(req => 
-        selectedRequests.includes(req.id)
-          ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' as const }
+        selectedRequests.includes(String(req.id))
+          ? { ...req, status: (action === 'approve' ? 'approved' : 'rejected') as 'approved' | 'rejected' }
           : req
       );
       
-      setWithdrawalRequests(updatedRequests);
+      setWithdrawalRequests(updatedRequests as WithdrawalRequest[]);
       setSelectedRequests([]);
     } catch (err) {
       setError(`An error occurred while ${action}ing the selected withdrawal requests`);
@@ -462,8 +462,8 @@ export default function WithdrawalRequestsPage() {
                   <StyledTableRow key={request.id} hover>
                     <StyledTableCell padding="checkbox">
                       <Checkbox
-                        checked={selectedRequests.includes(request.id)}
-                        onChange={() => handleSelectRequest(request.id)}
+                        checked={selectedRequests.includes(String(request.id))}
+                        onChange={() => handleSelectRequest(String(request.id))}
                       />
                     </StyledTableCell>
                     <StyledTableCell>

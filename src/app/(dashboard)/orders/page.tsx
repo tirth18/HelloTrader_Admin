@@ -102,14 +102,17 @@ const OrderMonitoringPage: React.FC = () => {
     }
   });
 
-  const { data: instruments } = useQuery('instruments', async () => {
-    const response = await fetch('/api/instruments');
-    return response.json();
+  const { data: instruments } = useQuery({
+    queryKey: ['instruments'],
+    queryFn: async () => {
+      const response = await fetch('/api/instruments');
+      return response.json();
+    }
   });
 
   useEffect(() => {
     wsClient.subscribe('order_update', (data) => {
-      queryClient.invalidateQueries('orders');
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     });
 
     return () => {
@@ -133,8 +136,8 @@ const OrderMonitoringPage: React.FC = () => {
     }
   });
 
-  const updateOrderMutation = useMutation(
-    async ({ id, orderData }: { id: string; orderData: any }) => {
+  const updateOrderMutation = useMutation({
+    mutationFn: async ({ id, orderData }: { id: string; orderData: any }) => {
       const response = await fetch(`/api/orders/${id}`, {
         method: 'PUT',
         headers: {
@@ -144,13 +147,11 @@ const OrderMonitoringPage: React.FC = () => {
       });
       return response.json();
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('orders');
-        setOpen(false);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      setOpen(false);
+    },
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -254,7 +255,7 @@ const OrderMonitoringPage: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<RefreshIcon />}
-          onClick={() => queryClient.invalidateQueries('orders')}
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['orders'] })}
         >
           Refresh
         </Button>

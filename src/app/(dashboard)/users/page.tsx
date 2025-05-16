@@ -420,75 +420,77 @@ const UsersPage: React.FC = () => {
           </Typography>
       </Box>
 
-        <StyledTableContainer component={Paper}>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                <StyledTableCell>#</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
-                <StyledTableCell>ID</StyledTableCell>
-                <StyledTableCell>Username</StyledTableCell>
-                <StyledTableCell>Parent</StyledTableCell>
-                <StyledTableCell>Brokerage Share</StyledTableCell>
-                <StyledTableCell>Profit Share</StyledTableCell>
-                <StyledTableCell>Credit Limit</StyledTableCell>
-                <StyledTableCell>Type</StyledTableCell>
-                <StyledTableCell>Total Clients</StyledTableCell>
-                <StyledTableCell>Ref. Code</StyledTableCell>
-                <StyledTableCell>Account Status</StyledTableCell>
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {users.map((user) => (
-                <StyledTableRow key={user.id}>
-                  <StyledTableCell>{user.id}</StyledTableCell>
-                  <StyledTableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <ActionButton size="small">
-                        <VisibilityIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small" onClick={() => handleOpenEditDialog(user)}>
-                        <EditIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small">
-                        <FileDownloadIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small" onClick={() => handleOpenDeleteDialog(user)}>
-                        <DeleteIcon fontSize="small" />
-                      </ActionButton>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.id}</StyledTableCell>
-                  <StyledTableCell>
-                    {user.username}
-                    <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
-                      ({user.realUsername})
-                    </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    {user.parent}
-                    <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
-                      (admin: {user.parentId})
-                    </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.brokerageShare.toFixed(2)}%</StyledTableCell>
-                  <StyledTableCell>{user.profitShare.toFixed(2)}%</StyledTableCell>
-                  <StyledTableCell>{user.creditLimit.toFixed(4)}</StyledTableCell>
-                  <StyledTableCell>{user.type}</StyledTableCell>
-                  <StyledTableCell>{user.totalClients}</StyledTableCell>
-                  <StyledTableCell>
-                    <RefCodeText>{user.refCode}</RefCodeText>
-                    <Box sx={{ mt: 1 }}>
-                      <GenerateButton variant="outlined" size="small">
-                        Generate
-                      </GenerateButton>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.status}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <StyledTableContainer>
+          <Paper sx={{ backgroundColor: '#1a2138', borderRadius: 0 }}>
+            <Table>
+              <StyledTableHead>
+                <TableRow>
+                  <StyledTableCell>#</StyledTableCell>
+                  <StyledTableCell>Actions</StyledTableCell>
+                  <StyledTableCell>ID</StyledTableCell>
+                  <StyledTableCell>Username</StyledTableCell>
+                  <StyledTableCell>Parent</StyledTableCell>
+                  <StyledTableCell>Brokerage Share</StyledTableCell>
+                  <StyledTableCell>Profit Share</StyledTableCell>
+                  <StyledTableCell>Credit Limit</StyledTableCell>
+                  <StyledTableCell>Type</StyledTableCell>
+                  <StyledTableCell>Total Clients</StyledTableCell>
+                  <StyledTableCell>Ref. Code</StyledTableCell>
+                  <StyledTableCell>Account Status</StyledTableCell>
+                </TableRow>
+              </StyledTableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <StyledTableRow key={user.id}>
+                    <StyledTableCell>{user.id}</StyledTableCell>
+                    <StyledTableCell>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <ActionButton size="small">
+                          <VisibilityIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small" onClick={() => handleOpenEditDialog(user)}>
+                          <EditIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small">
+                          <FileDownloadIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small" onClick={() => handleOpenDeleteDialog(user)}>
+                          <DeleteIcon fontSize="small" />
+                        </ActionButton>
+                      </Box>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.id}</StyledTableCell>
+                    <StyledTableCell>
+                      {user.username}
+                      <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
+                        ({user.realUsername})
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      {user.parent}
+                      <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
+                        (admin: {user.parentId})
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.brokerageShare.toFixed(2)}%</StyledTableCell>
+                    <StyledTableCell>{user.profitShare.toFixed(2)}%</StyledTableCell>
+                    <StyledTableCell>{user.creditLimit.toFixed(4)}</StyledTableCell>
+                    <StyledTableCell>{user.type}</StyledTableCell>
+                    <StyledTableCell>{user.totalClients}</StyledTableCell>
+                    <StyledTableCell>
+                      <RefCodeText>{user.refCode}</RefCodeText>
+                      <Box sx={{ mt: 1 }}>
+                        <GenerateButton variant="outlined" size="small">
+                          Generate
+                        </GenerateButton>
+                      </Box>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.status}</StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
         </StyledTableContainer>
 
         {/* Add User Dialog */}

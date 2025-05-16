@@ -233,7 +233,7 @@ function DepositRequestsContent() {
     if (selectedRequests.length === depositRequests.length) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(depositRequests.map(req => req.id));
+      setSelectedRequests(depositRequests.map(req => String(req.id)));
     }
   };
 
@@ -247,12 +247,12 @@ function DepositRequestsContent() {
       
       // Update local state
       const updatedRequests = depositRequests.map(req => 
-        selectedRequests.includes(req.id)
-          ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' as const }
+        selectedRequests.includes(String(req.id))
+          ? { ...req, status: (action === 'approve' ? 'approved' : 'rejected') as 'approved' | 'rejected' }
           : req
       );
       
-      setDepositRequests(updatedRequests);
+      setDepositRequests(updatedRequests as DepositRequest[]);
       setSelectedRequests([]);
     } catch (err) {
       setError(`An error occurred while ${action}ing the selected deposit requests`);
