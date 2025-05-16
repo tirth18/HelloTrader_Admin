@@ -32,6 +32,7 @@ import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
+import { useRouter } from "next/navigation";
 
 // Styled components
 const PageContainer = styled(Box)(() => ({
@@ -188,8 +189,8 @@ const InputLabel = styled(Typography)(() => ({
 }));
 
 // Mock user data
-  const mockUsers = [
-    {
+const mockUsers = [
+  {
     id: 347,
     username: 'LAK159',
     realUsername: 'jain122',
@@ -223,6 +224,7 @@ const UsersPage: React.FC = () => {
   const [users, setUsers] = useState(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [accountStatus, setAccountStatus] = useState('All');
+  const router = useRouter();
   
   // Dialogs state
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -408,7 +410,7 @@ const UsersPage: React.FC = () => {
           <CreateUserButton 
             variant="contained" 
             startIcon={<AddIcon />}
-            onClick={handleOpenAddDialog}
+            onClick={() => router.push("/users/create")}
           >
             CREATE USER
           </CreateUserButton>
@@ -492,77 +494,6 @@ const UsersPage: React.FC = () => {
             </Table>
           </Paper>
         </StyledTableContainer>
-
-        {/* Add User Dialog */}
-        <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Enter the details for the new user.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Username"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={newUser.username}
-              onChange={(e) => setNewUser({...newUser, username: e.target.value})}
-            />
-            <TextField
-              margin="dense"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="outlined"
-              value={newUser.password}
-              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-            />
-            <FormControl fullWidth margin="dense">
-              <Select
-                value={newUser.type}
-                displayEmpty
-                onChange={(e) => setNewUser({...newUser, type: e.target.value as string})}
-              >
-                <MenuItem value="Broker">Broker</MenuItem>
-                <MenuItem value="Client">Client</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              margin="dense"
-              label="Brokerage Share (%)"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.brokerageShare}
-              onChange={(e) => setNewUser({...newUser, brokerageShare: parseFloat(e.target.value)})}
-            />
-            <TextField
-              margin="dense"
-              label="Profit Share (%)"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.profitShare}
-              onChange={(e) => setNewUser({...newUser, profitShare: parseFloat(e.target.value)})}
-            />
-            <TextField
-              margin="dense"
-              label="Credit Limit"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.creditLimit}
-              onChange={(e) => setNewUser({...newUser, creditLimit: parseFloat(e.target.value)})}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAddDialog}>Cancel</Button>
-            <Button onClick={handleAddUser} variant="contained" color="primary">Create</Button>
-          </DialogActions>
-        </Dialog>
 
         {/* Edit User Dialog */}
         <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
