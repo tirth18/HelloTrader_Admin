@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, useTheme } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface Position {
-  scrip: string;
+interface ScriptUser {
+  id: string;
+  name: string;
   lots: number;
   avgBuyRate: number;
   avgSellRate: number;
@@ -14,84 +16,85 @@ interface Position {
   netPL: number;
 }
 
-const closedPositions: Position[] = [
+// Sample static data - this will be replaced with API data later
+const usersData: ScriptUser[] = [
   {
-    scrip: 'CME: NZD-USD (6NM5)',
-    lots: 1.100,
-    avgBuyRate: 0.60,
-    avgSellRate: 0.60,
-    profitLoss: -480.00,
-    brokerage: 519.72,
-    netPL: -999.72,
+    id: '683',
+    name: 'Raman',
+    lots: 0.769,
+    avgBuyRate: 254.75,
+    avgSellRate: 262.05,
+    profitLoss: 14600,
+    brokerage: 258.4,
+    netPL: 14341.6,
   },
   {
-    scrip: 'AARTIIND25MAYFUT',
-    lots: 134.782,
-    avgBuyRate: 450.35,
-    avgSellRate: 450.42,
-    profitLoss: 259591.90,
-    brokerage: 9772.96,
-    netPL: 249818.94,
+    id: '714',
+    name: '04',
+    lots: 0.004,
+    avgBuyRate: 254.75,
+    avgSellRate: 275.95,
+    profitLoss: 212,
+    brokerage: 0,
+    netPL: 212,
   },
   {
-    scrip: 'ABB25MAYFUT',
-    lots: 0.040,
-    avgBuyRate: 5486.00,
-    avgSellRate: 5487.50,
-    profitLoss: 7.50,
-    brokerage: 2.74,
-    netPL: 4.76,
+    id: '1959',
+    name: 'Sathiyamoorthi',
+    lots: 2.5,
+    avgBuyRate: 275.81,
+    avgSellRate: 275.57,
+    profitLoss: -1550,
+    brokerage: 179.2,
+    netPL: -1729.2,
   },
   {
-    scrip: 'ABCAPITAL25MAYFUT',
-    lots: 0.741,
-    avgBuyRate: 198.41,
-    avgSellRate: 200.78,
-    profitLoss: 4744.00,
-    brokerage: 199.63,
-    netPL: 4544.37,
+    id: '3713',
+    name: 'MURALIDHARAN N',
+    lots: 0,
+    avgBuyRate: 277.2,
+    avgSellRate: 276.9,
+    profitLoss: -0.3,
+    brokerage: 0.03,
+    netPL: -0.33,
   },
   {
-    scrip: 'ABFRL25MAYFUT',
-    lots: 2.087,
-    avgBuyRate: 259.61,
-    avgSellRate: 262.33,
-    profitLoss: 12666.99,
-    brokerage: 484.88,
-    netPL: 12182.11,
+    id: '3738',
+    name: 'Anil',
+    lots: 1.385,
+    avgBuyRate: 254.75,
+    avgSellRate: 277,
+    profitLoss: 80100,
+    brokerage: 382.86,
+    netPL: 79717.14,
   },
   {
-    scrip: 'ACC25MAY1900CE',
-    lots: 1.000,
-    avgBuyRate: 29.30,
-    avgSellRate: 19.75,
-    profitLoss: -2865.00,
-    brokerage: 40.00,
-    netPL: -2905.00,
+    id: '4074',
+    name: 'Aman',
+    lots: 1.154,
+    avgBuyRate: 254.75,
+    avgSellRate: 276.25,
+    profitLoss: 64500,
+    brokerage: 477.9,
+    netPL: 64022.1,
   },
   {
-    scrip: 'ACC25MAYFUT',
-    lots: 13.133,
-    avgBuyRate: 1867.94,
-    avgSellRate: 1906.59,
-    profitLoss: 150131.00,
-    brokerage: 178.51,
-    netPL: 149952.49,
-  },
-  {
-    scrip: 'ADANIENSOL25MAYFUT',
-    lots: 9.261,
-    avgBuyRate: 924.51,
-    avgSellRate: 925.73,
-    profitLoss: 7909.85,
-    brokerage: 1942.95,
-    netPL: 5966.90,
+    id: '4803',
+    name: 'Arun',
+    lots: 3,
+    avgBuyRate: 272.05,
+    avgSellRate: 272,
+    profitLoss: -390,
+    brokerage: 212.18,
+    netPL: -602.18,
   }
 ];
 
-export default function ClosedPositionsPage() {
+export default function ScriptDetailPage() {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const searchParams = useSearchParams();
+  const scriptName = searchParams.get('script') || 'Unknown Script';
 
   return (
     <Box sx={{ 
@@ -125,7 +128,7 @@ export default function ClosedPositionsPage() {
           }
         }}
       >
-        Closed Positions
+        {scriptName}
       </Typography>
       
       <TableContainer 
@@ -155,7 +158,7 @@ export default function ClosedPositionsPage() {
                   letterSpacing: '0.5px',
                 }}
               >
-                Scrip
+                User
               </TableCell>
               <TableCell 
                 align="right" 
@@ -238,9 +241,9 @@ export default function ClosedPositionsPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {closedPositions.map((position) => (
+            {usersData.map((user) => (
               <TableRow
-                key={position.scrip}
+                key={user.id}
                 sx={{ 
                   '&:last-child td, &:last-child th': { border: 0 },
                   borderBottom: `1px solid ${isDarkMode ? 'rgba(27, 43, 78, 0.8)' : '#E9EDF5'}`,
@@ -263,7 +266,7 @@ export default function ClosedPositionsPage() {
                   }}
                 >
                   <Link
-                    href={`/script-detail?script=${encodeURIComponent(position.scrip)}`}
+                    href={`/user-script-detail?script=${encodeURIComponent(scriptName)}&userId=${user.id}&userName=${user.name}`}
                     style={{ textDecoration: 'none' }}
                   >
                     <Box
@@ -290,7 +293,7 @@ export default function ClosedPositionsPage() {
                         }
                       }}
                     >
-                      {position.scrip}
+                      {`${user.id} : ${user.name}`}
                     </Box>
                   </Link>
                 </TableCell>
@@ -303,7 +306,7 @@ export default function ClosedPositionsPage() {
                     fontWeight: 500,
                   }}
                 >
-                  {position.lots.toFixed(3)}
+                  {user.lots.toFixed(3)}
                 </TableCell>
                 <TableCell 
                   align="right" 
@@ -314,7 +317,7 @@ export default function ClosedPositionsPage() {
                     fontWeight: 500,
                   }}
                 >
-                  {position.avgBuyRate.toFixed(2)}
+                  {user.avgBuyRate.toFixed(2)}
                 </TableCell>
                 <TableCell 
                   align="right" 
@@ -325,12 +328,12 @@ export default function ClosedPositionsPage() {
                     fontWeight: 500,
                   }}
                 >
-                  {position.avgSellRate.toFixed(2)}
+                  {user.avgSellRate.toFixed(2)}
                 </TableCell>
                 <TableCell 
                   align="right"
                   sx={{ 
-                    color: position.profitLoss >= 0 
+                    color: user.profitLoss >= 0 
                       ? (isDarkMode ? '#50CD89' : '#027A48')
                       : (isDarkMode ? '#F1416C' : '#D92D20'),
                     borderBottom: 'inherit',
@@ -338,7 +341,7 @@ export default function ClosedPositionsPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {position.profitLoss.toFixed(2)}
+                  {user.profitLoss.toFixed(2)}
                 </TableCell>
                 <TableCell 
                   align="right" 
@@ -349,12 +352,12 @@ export default function ClosedPositionsPage() {
                     fontWeight: 500,
                   }}
                 >
-                  {position.brokerage.toFixed(2)}
+                  {user.brokerage.toFixed(2)}
                 </TableCell>
                 <TableCell 
                   align="right"
                   sx={{ 
-                    color: position.netPL >= 0 
+                    color: user.netPL >= 0 
                       ? (isDarkMode ? '#50CD89' : '#027A48')
                       : (isDarkMode ? '#F1416C' : '#D92D20'),
                     borderBottom: 'inherit',
@@ -362,7 +365,7 @@ export default function ClosedPositionsPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {position.netPL.toFixed(2)}
+                  {user.netPL.toFixed(2)}
                 </TableCell>
               </TableRow>
             ))}
