@@ -27,10 +27,12 @@ import { useThemeContext } from '@/contexts/ThemeContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useRouter } from 'next/navigation';
 
 export default function ClosedTradesPage() {
   const theme = useTheme();
   const { mode } = useThemeContext();
+  const router = useRouter();
   
   // Form state
   const [timeDiff, setTimeDiff] = useState('');
@@ -43,7 +45,7 @@ export default function ClosedTradesPage() {
       id: '3610326',
       scrip: 'GCM5',
       segment: 'COMEX',
-      userId: '2606 9958955517',
+      userId: '2606',
       username: 'Sheetal Singh',
       buyRate: '3327.80000000',
       sellRate: '3328.00000000',
@@ -54,7 +56,7 @@ export default function ClosedTradesPage() {
       id: '3610318',
       scrip: 'SILVERMIC25JUNFUT',
       segment: 'MCX',
-      userId: '1753 Helo232',
+      userId: '1753',
       username: 'Dilip T S',
       buyRate: '96328.00000000',
       sellRate: '96365.00000000',
@@ -65,7 +67,7 @@ export default function ClosedTradesPage() {
       id: '3610315',
       scrip: 'CRUDEOIL25MAYFUT',
       segment: 'MCX',
-      userId: '329193 Helo1206',
+      userId: '329193',
       username: 'Manipal',
       buyRate: '5165.00000000',
       sellRate: '5128.00000000',
@@ -76,7 +78,7 @@ export default function ClosedTradesPage() {
       id: '3610314',
       scrip: 'VOLTAS25MAYFUT',
       segment: 'NSE',
-      userId: '74539 Helo1161',
+      userId: '74539',
       username: 'Abhishek',
       buyRate: '1204.20000000',
       sellRate: '1241.00000000',
@@ -87,7 +89,7 @@ export default function ClosedTradesPage() {
       id: '3610305',
       scrip: 'WIPRO25MAY247.5CE',
       segment: 'NSE',
-      userId: '762 HELO110',
+      userId: '762',
       username: 'Madam',
       buyRate: '4.40000000',
       sellRate: '4.40000000',
@@ -98,7 +100,7 @@ export default function ClosedTradesPage() {
       id: '3610297',
       scrip: 'VOLTAS25MAYFUT',
       segment: 'NSE',
-      userId: '4325 8619622508',
+      userId: '4325',
       username: 'Lalit',
       buyRate: '1211.90000000',
       sellRate: '1234.70000000',
@@ -109,7 +111,7 @@ export default function ClosedTradesPage() {
       id: '3610295',
       scrip: 'TATACHEM25MAYFUT',
       segment: 'NSE',
-      userId: '5046 9880733589',
+      userId: '5046',
       username: 'K S Panduranga',
       buyRate: '813.80000000',
       sellRate: '816.20000000',
@@ -120,7 +122,7 @@ export default function ClosedTradesPage() {
       id: '3610294',
       scrip: 'TATACHEM25MAYFUT',
       segment: 'NSE',
-      userId: '5046 9880733589',
+      userId: '5046',
       username: 'K S Panduranga',
       buyRate: '814.60000000',
       sellRate: '816.20000000',
@@ -152,6 +154,16 @@ export default function ClosedTradesPage() {
   const tableHeaderStyle = {
     fontWeight: 'bold',
     color: mode === 'dark' ? '#fff' : 'inherit',
+  };
+  
+  // Handle edit click
+  const handleEditClick = (id: string) => {
+    router.push(`/closed-trades/update?id=${id}`);
+  };
+  
+  // Handle view click
+  const handleViewClick = (id: string) => {
+    router.push(`/closed-trades/view?id=${id}`);
   };
   
   return (
@@ -249,10 +261,16 @@ export default function ClosedTradesPage() {
                   <TableRow key={row.id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <IconButton size="small">
+                        <IconButton 
+                          size="small"
+                          onClick={() => handleViewClick(row.id)}
+                        >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleEditClick(row.id)}
+                        >
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small">
