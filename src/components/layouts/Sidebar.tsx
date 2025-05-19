@@ -97,6 +97,7 @@ const formatPath = (path: string): string => {
 
 const menuItems: MenuItem[] = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: formatPath('dashboard/overview') },
+  { text: 'Live M2M', icon: <MonetizationOnIcon />, path: formatPath('live-m2m') },
   { text: 'Auto Scrip Config', icon: <PlaylistAddIcon />, path: formatPath('auto-scrip-config') },
   { text: 'Payment Gateways', icon: <PaymentIcon />, path: formatPath('payment-gateways') },
   { text: 'Bank Details', icon: <AccountBalanceIcon />, path: formatPath('banking') },
