@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Stack, useTheme, alpha, Grid, Paper } from '@mui/material';
 import PaymentGatewayTable from '@/components/PaymentGateways/PaymentGatewayTable';
 import AddGatewayDialog from '@/components/PaymentGateways/AddGatewayDialog';
@@ -13,46 +13,44 @@ import {
   Cancel as CancelIcon,
   AccountBalanceWallet as WalletIcon 
 } from '@mui/icons-material';
-
-interface PaymentGateway {
-  id: number;
-  publicName: string;
-  privateName: string;
-  linkKeyToken: string;
-  isEnabled: boolean;
-}
-
-const mockGateways: PaymentGateway[] = [
-  {
-    id: 1,
-    publicName: 'UPI',
-    privateName: 'cosmofeed',
-    linkKeyToken: 'https://zeroize.in/pay/WFKTzIDe',
-    isEnabled: true,
-  },
-  {
-    id: 2,
-    publicName: 'All Api',
-    privateName: 'allapi',
-    linkKeyToken: '36b0b2-4df2a9-59e64d-bd21c9-0872e0',
-    isEnabled: true,
-  },
-  {
-    id: 3,
-    publicName: 'Zunep',
-    privateName: 'zunep',
-    linkKeyToken: 'bfc2f44a96dfad17b91de78ac637248f8ed1227d',
-    isEnabled: false,
-  },
-];
+import { PaymentGateway } from '@/types/paymentGateway';
+import { createPaymentGateway, getAllPaymentGateways, updatePaymentGateway } from '@/services/paymentGatewayService';
 
 export default function PaymentGatewaysPage() {
   const theme = useTheme();
-  const [gateways, setGateways] = useState<PaymentGateway[]>(mockGateways);
+  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentGateway, setCurrentGateway] = useState<PaymentGateway | null>(null);
+  const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
+
+  // Fetch payment gateways on page load
+  useEffect(() => {
+    const fetchGateways = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllPaymentGateways();
+        
+        // Map API response to our state format
+        const mappedGateways = data.map((gateway, index) => ({
+          ...gateway,
+          id: index + 1, // Assign sequential ID for UI
+          linkKeyToken: gateway.key, // Map key to linkKeyToken for UI
+          isEnabled: gateway.isEnabled ?? true // Default to enabled if not specified
+        }));
+        
+        setGateways(mappedGateways);
+      } catch (error) {
+        console.error('Error fetching payment gateways:', error);
+        enqueueSnackbar('Failed to load payment gateways', { variant: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGateways();
+  }, [enqueueSnackbar]);
 
   const handleEdit = (id: number) => {
     const gateway = gateways.find(g => g.id === id) || null;
@@ -60,13 +58,36 @@ export default function PaymentGatewaysPage() {
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = (updatedGateway: PaymentGateway) => {
-    setGateways(prev => 
-      prev.map(g => g.id === updatedGateway.id ? updatedGateway : g)
-    );
-    setIsEditDialogOpen(false);
-    setCurrentGateway(null);
-    enqueueSnackbar('Payment gateway updated successfully', { variant: 'success' });
+  const handleSaveEdit = async (updatedGateway: PaymentGateway) => {
+    try {
+      // Prepare payload - API expects key instead of linkKeyToken
+      const payloadData = {
+        publicName: updatedGateway.publicName,
+        privateName: updatedGateway.privateName,
+        key: updatedGateway.linkKeyToken || updatedGateway.key || ''
+      };
+
+      // We need the MongoDB _id for the API, not the display id
+      const id = updatedGateway._id || ''; 
+      
+      // Call the API
+      await updatePaymentGateway(id, payloadData);
+      
+      // Update local state
+      setGateways(prev => 
+        prev.map(g => g.id === updatedGateway.id ? {
+          ...updatedGateway,
+          key: payloadData.key // Make sure key is updated
+        } : g)
+      );
+      
+      setIsEditDialogOpen(false);
+      setCurrentGateway(null);
+      enqueueSnackbar('Payment gateway updated successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Error updating payment gateway:', error);
+      enqueueSnackbar('Failed to update payment gateway', { variant: 'error' });
+    }
   };
 
   const handleToggleStatus = (id: number) => {
@@ -85,20 +106,36 @@ export default function PaymentGatewaysPage() {
     );
   };
 
-  const handleAddGateway = (newGateway: {
+  const handleAddGateway = async (newGateway: {
     publicName: string;
     privateName: string;
     linkKeyToken: string;
   }) => {
-    const gateway: PaymentGateway = {
-      ...newGateway,
-      id: Math.max(...gateways.map((g) => g.id)) + 1,
-      isEnabled: true,
-    };
+    try {
+      const payloadData = {
+        publicName: newGateway.publicName,
+        privateName: newGateway.privateName,
+        key: newGateway.linkKeyToken // API expects 'key' instead of 'linkKeyToken'
+      };
 
-    setGateways((prev) => [...prev, gateway]);
-    setIsAddDialogOpen(false);
-    enqueueSnackbar('Payment gateway added successfully', { variant: 'success' });
+      const response = await createPaymentGateway(payloadData);
+      
+      // Add the new gateway to the list with returned data from API
+      const newGatewayWithId: PaymentGateway = {
+        ...response,
+        id: gateways.length + 1, // Assign sequential ID for UI display
+        _id: response._id, // Store the MongoDB _id for API operations
+        isEnabled: true,
+        linkKeyToken: response.key // Map the key to linkKeyToken for UI display
+      };
+
+      setGateways((prev) => [...prev, newGatewayWithId]);
+      setIsAddDialogOpen(false);
+      enqueueSnackbar('Payment gateway added successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Error adding payment gateway:', error);
+      enqueueSnackbar('Failed to add payment gateway', { variant: 'error' });
+    }
   };
 
   const totalGateways = gateways.length;
@@ -373,6 +410,7 @@ export default function PaymentGatewaysPage() {
               gateways={gateways}
               onEdit={handleEdit}
               onToggleStatus={handleToggleStatus}
+              loading={loading}
             />
           </Box>
         </Paper>

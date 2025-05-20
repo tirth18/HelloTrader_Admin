@@ -15,6 +15,7 @@ import {
   Typography,
   Box,
   InputAdornment,
+  CircularProgress
 } from '@mui/material';
 import { 
   Close as CloseIcon,
@@ -43,6 +44,8 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
     linkKeyToken: false,
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -52,7 +55,7 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newErrors = {
@@ -67,13 +70,21 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
       return;
     }
     
-    onAdd(formData);
+    setLoading(true);
     
-    setFormData({
-      publicName: '',
-      privateName: '',
-      linkKeyToken: '',
-    });
+    try {
+      await onAdd(formData);
+      
+      setFormData({
+        publicName: '',
+        privateName: '',
+        linkKeyToken: '',
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -266,13 +277,13 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
             
             <TextField
               name="linkKeyToken"
-              label="Link / Key / Token"
+              label="Key"
               value={formData.linkKeyToken}
               onChange={handleChange}
               fullWidth
               variant="outlined"
               error={errors.linkKeyToken}
-              helperText={errors.linkKeyToken ? "Link/Key/Token is required" : "Unique identifier or API key for the gateway"}
+              helperText={errors.linkKeyToken ? "Key is required" : "Unique API key identifier for this gateway"}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -311,6 +322,7 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
           <Button 
             onClick={handleClose} 
             variant="outlined"
+            disabled={loading}
             sx={{ 
               borderRadius: 2,
               px: 3,
@@ -330,6 +342,7 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
           <Button 
             type="submit" 
             variant="contained" 
+            disabled={loading}
             sx={{ 
               borderRadius: 2,
               px: 3,
@@ -343,7 +356,7 @@ export default function AddGatewayDialog({ open, onClose, onAdd }: AddGatewayDia
               }
             }}
           >
-            Add Gateway
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Add Gateway'}
           </Button>
         </DialogActions>
       </form>
