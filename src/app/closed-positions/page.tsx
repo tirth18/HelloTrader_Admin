@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, useTheme } from '@mui/material';
+import Link from 'next/link';
 
 interface Position {
   scrip: string;
@@ -261,31 +262,37 @@ export default function ClosedPositionsPage() {
                     borderBottom: 'inherit',
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: 'inline-block',
-                      background: isDarkMode
-                        ? 'linear-gradient(135deg, rgba(54, 153, 255, 0.2), rgba(54, 153, 255, 0.1))'
-                        : 'linear-gradient(135deg, rgba(54, 153, 255, 0.1), rgba(54, 153, 255, 0.05))',
-                      color: isDarkMode ? '#3699FF' : '#0052CC',
-                      py: 1.2,
-                      px: 2.5,
-                      borderRadius: '8px',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.3px',
-                      border: `1px solid ${isDarkMode ? 'rgba(54, 153, 255, 0.2)' : 'rgba(54, 153, 255, 0.15)'}`,
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        background: isDarkMode
-                          ? 'linear-gradient(135deg, rgba(54, 153, 255, 0.3), rgba(54, 153, 255, 0.2))'
-                          : 'linear-gradient(135deg, rgba(54, 153, 255, 0.15), rgba(54, 153, 255, 0.1))',
-                        transform: 'translateY(-1px)',
-                      }
-                    }}
+                  <Link
+                    href={`/script-detail?script=${encodeURIComponent(position.scrip)}`}
+                    style={{ textDecoration: 'none' }}
                   >
-                    {position.scrip}
-                  </Box>
+                    <Box
+                      sx={{
+                        display: 'inline-block',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, rgba(54, 153, 255, 0.2), rgba(54, 153, 255, 0.1))'
+                          : 'linear-gradient(135deg, rgba(54, 153, 255, 0.1), rgba(54, 153, 255, 0.05))',
+                        color: isDarkMode ? '#3699FF' : '#0052CC',
+                        py: 1.2,
+                        px: 2.5,
+                        borderRadius: '8px',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        letterSpacing: '0.3px',
+                        border: `1px solid ${isDarkMode ? 'rgba(54, 153, 255, 0.2)' : 'rgba(54, 153, 255, 0.15)'}`,
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          background: isDarkMode
+                            ? 'linear-gradient(135deg, rgba(54, 153, 255, 0.3), rgba(54, 153, 255, 0.2))'
+                            : 'linear-gradient(135deg, rgba(54, 153, 255, 0.15), rgba(54, 153, 255, 0.1))',
+                          transform: 'translateY(-1px)',
+                        }
+                      }}
+                    >
+                      {position.scrip}
+                    </Box>
+                  </Link>
                 </TableCell>
                 <TableCell 
                   align="right" 

@@ -170,7 +170,7 @@ export default function ChangeTransactionPasswordPage() {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.oldPassword && Boolean(formik.errors.oldPassword)}
-            helperText={formik.touched.oldPassword && formik.errors.oldPassword}
+            helperText={formik.touched.oldPassword && typeof formik.errors.oldPassword === 'string' ? formik.errors.oldPassword : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -198,7 +198,7 @@ export default function ChangeTransactionPasswordPage() {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.newPassword && Boolean(formik.errors.newPassword)}
-            helperText={formik.touched.newPassword && formik.errors.newPassword}
+            helperText={formik.touched.newPassword && typeof formik.errors.newPassword === 'string' ? formik.errors.newPassword : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -255,7 +255,7 @@ export default function ChangeTransactionPasswordPage() {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.repeatPassword && Boolean(formik.errors.repeatPassword)}
-            helperText={formik.touched.repeatPassword && formik.errors.repeatPassword}
+            helperText={formik.touched.repeatPassword && typeof formik.errors.repeatPassword === 'string' ? formik.errors.repeatPassword : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

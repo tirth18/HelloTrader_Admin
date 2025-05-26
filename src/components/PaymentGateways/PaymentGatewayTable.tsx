@@ -14,7 +14,8 @@ import {
   useTheme,
   alpha,
   Typography,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 import {
   ContentCopy as ContentCopyIcon,
@@ -23,22 +24,16 @@ import {
   Cancel as CancelIcon
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-
-interface PaymentGateway {
-  id: number;
-  publicName: string;
-  privateName: string;
-  linkKeyToken: string;
-  isEnabled: boolean;
-}
+import { PaymentGateway } from '@/types/paymentGateway';
 
 interface Props {
   gateways: PaymentGateway[];
   onEdit: (id: number) => void;
   onToggleStatus: (id: number) => void;
+  loading?: boolean;
 }
 
-export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus }: Props) {
+export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus, loading = false }: Props) {
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -46,6 +41,31 @@ export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus }
     navigator.clipboard.writeText(text);
     enqueueSnackbar('Copied to clipboard!', { variant: 'success' });
   };
+
+  // Determine which key field to display (key or linkKeyToken)
+  const getKeyValue = (gateway: PaymentGateway): string => {
+    return gateway.key || gateway.linkKeyToken || '';
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (gateways.length === 0) {
+    return (
+      <Box sx={{ 
+        py: 4, 
+        textAlign: 'center',
+        color: theme.palette.mode === 'dark' ? alpha('#fff', 0.7) : alpha('#1a1a1a', 0.7)
+      }}>
+        <Typography variant="body1">No payment gateways found. Add your first gateway using the button above.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <TableContainer
@@ -115,7 +135,7 @@ export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus }
                 borderBottom: 'none',
               }}
             >
-              Link / Key / Token
+              Key
             </TableCell>
             <TableCell 
               align="center"
@@ -172,7 +192,11 @@ export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus }
                   borderBottom: 'none',
                 }}
               >
-                {gateway.id}
+                <Tooltip title={gateway._id ? `MongoDB ID: ${gateway._id}` : ''} arrow placement="top-start">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {gateway.id}
+                  </Box>
+                </Tooltip>
               </TableCell>
               <TableCell
                 sx={{
@@ -209,12 +233,12 @@ export default function PaymentGatewayTable({ gateways, onEdit, onToggleStatus }
                       fontFamily: 'monospace',
                     }}
                   >
-                    {gateway.linkKeyToken}
+                    {getKeyValue(gateway)}
                   </Typography>
                   <Tooltip title="Copy to clipboard" arrow>
                     <IconButton
                       size="small"
-                      onClick={() => handleCopyClick(gateway.linkKeyToken)}
+                      onClick={() => handleCopyClick(getKeyValue(gateway))}
                       sx={{
                         color: theme.palette.mode === 'dark' ? alpha('#fff', 0.7) : alpha('#1a1a1a', 0.7),
                         '&:hover': {

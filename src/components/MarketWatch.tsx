@@ -21,32 +21,43 @@ const MarketWatch: React.FC = () => {
     const [error, setError] = useState<string>('');
 
     useEffect(() => {
+        let isMounted = true;
         const init = async () => {
             try {
                 const matchedInstruments = await zerodhaService.matchScripts();
-                setInstruments(matchedInstruments);
+                if (isMounted) {
+                    setInstruments(matchedInstruments);
+                }
                 
                 // Subscribe to market data
                 zerodhaService.connectWebSocket((data: MarketData) => {
-                    setMarketData(prev => ({
-                        ...prev,
-                        [data.token]: data
-                    }));
+                    if (isMounted) {
+                        setMarketData(prev => ({
+                            ...prev,
+                            [data.token]: data
+                        }));
+                    }
                 });
 
                 // Subscribe to all instrument tokens
                 const tokens = matchedInstruments.map(i => i.instrument_token);
                 zerodhaService.subscribeToTokens(tokens);
             } catch (err) {
-                setError('Failed to load market data');
+                if (isMounted) {
+                    setError('Failed to load market data');
+                    console.error('Market data error:', err);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         init();
 
         return () => {
+            isMounted = false;
             const tokens = instruments.map(i => i.instrument_token);
             zerodhaService.unsubscribeFromTokens(tokens);
             zerodhaService.disconnectWebSocket();

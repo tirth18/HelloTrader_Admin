@@ -213,7 +213,7 @@ export default function ChangePasswordPage() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.currentPassword && Boolean(formik.errors.currentPassword)}
-              helperText={formik.touched.currentPassword && formik.errors.currentPassword}
+              helperText={formik.touched.currentPassword && formik.errors.currentPassword ? String(formik.errors.currentPassword) : ''}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -241,7 +241,7 @@ export default function ChangePasswordPage() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.newPassword && Boolean(formik.errors.newPassword)}
-              helperText={formik.touched.newPassword && formik.errors.newPassword}
+              helperText={formik.touched.newPassword && formik.errors.newPassword ? String(formik.errors.newPassword) : ''}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -298,7 +298,7 @@ export default function ChangePasswordPage() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword ? String(formik.errors.confirmPassword) : ''}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">

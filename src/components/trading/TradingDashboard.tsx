@@ -18,7 +18,7 @@ import { LineChart } from '../charts/LineChart';
 import PieChart from '../charts/PieChart';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import PieChartIcon from '@mui/icons-material/PieChart';
-import BarChart from '../charts/BarChart';
+import { BarChart } from '../charts/BarChart';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableContainer } from '@mui/material';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';

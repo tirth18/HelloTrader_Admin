@@ -58,7 +58,7 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { useAuth } from '@/contexts/AuthContext';
 import axios from 'axios';
-import BrokerForm from './components/BrokerForm';
+import BrokerForm from '@/components/admin/BrokerForm';
 import ViewBrokerProfile from './components/ViewBrokerProfile';
 
 interface BrokerData {
@@ -815,6 +815,10 @@ export default function BrokerManagementPage() {
         onClose={() => setIsAddBrokerOpen(false)}
         onSubmit={handleAddBroker}
         isSubmitting={isSubmitting}
+        existingBrokers={brokers.map(broker => ({
+          id: broker.id.toString(),
+          name: broker.username
+        }))}
       />
 
       {/* View Profile Dialog */}

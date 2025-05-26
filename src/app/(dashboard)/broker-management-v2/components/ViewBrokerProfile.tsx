@@ -63,9 +63,9 @@ export default function ViewBrokerProfile({
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h5" fontWeight="bold">{broker.username}</Typography>
                 <Chip 
-                  label={broker.accountStatus} 
+                  label={broker.account_status} 
                   sx={{ 
-                    backgroundColor: alpha(getStatusColor(broker.accountStatus), 0.9),
+                    backgroundColor: alpha(getStatusColor(broker.account_status), 0.9),
                     color: '#fff',
                     fontWeight: 'medium',
                     px: 1
@@ -74,13 +74,13 @@ export default function ViewBrokerProfile({
               </Box>
               
               <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                <Chip label={`ID: ${broker.id}`} variant="outlined" size="small" />
-                <Chip label={`Type: ${broker.type}`} variant="outlined" size="small" />
-                <Chip label={`Ref Code: ${broker.refCode}`} variant="outlined" size="small" />
+                <Chip label={`ID: ${broker.id || 'N/A'}`} variant="outlined" size="small" />
+                <Chip label={`Type: ${broker.broker_type}`} variant="outlined" size="small" />
+                <Chip label={`Ref Code: ${broker.reference_code}`} variant="outlined" size="small" />
               </Stack>
               
               <Typography variant="body2" color="text.secondary">
-                Parent: <strong>{broker.parent}</strong>
+                Parent: <strong>{broker.parent_id || 'None'}</strong>
               </Typography>
             </Paper>
           </Grid>
@@ -101,7 +101,7 @@ export default function ViewBrokerProfile({
                 <Box>
                   <Typography variant="body2" color="text.secondary">Credit Limit</Typography>
                   <Typography variant="h6">
-                    ${broker.creditLimit.toLocaleString()}
+                    ${broker.creditLimit?.toLocaleString() || '0.00'}
                   </Typography>
                 </Box>
               </Stack>
@@ -117,14 +117,14 @@ export default function ViewBrokerProfile({
                 <Box>
                   <Typography variant="body2" color="text.secondary">Brokerage Share</Typography>
                   <Typography variant="h6">
-                    {broker.brokerageShare}%
+                    {broker.brokerage_share}%
                   </Typography>
                 </Box>
                 
                 <Box>
                   <Typography variant="body2" color="text.secondary">Profit Share</Typography>
                   <Typography variant="h6">
-                    {broker.profitShare}%
+                    {broker.profit_loss_share}%
                   </Typography>
                 </Box>
               </Stack>

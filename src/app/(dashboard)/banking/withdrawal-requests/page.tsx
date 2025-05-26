@@ -1,303 +1,333 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  Paper, 
-  Box, 
-  Container,
-  Button,
-  Grid,
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
   Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Alert,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  IconButton,
+  Paper,
+  Typography,
   Chip,
-  Checkbox
+  CircularProgress,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Checkbox,
+  Container,
+  IconButton,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  Divider,
+  Stack,
+  Alert,
+  Collapse,
 } from '@mui/material';
-import { styled, useTheme } from '@mui/material/styles';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { format } from 'date-fns';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import { styled, alpha } from '@mui/material/styles';
 
 interface WithdrawalRequest {
-  id: string;
-  name: string;
-  username: string;
-  ledgerBalance: number;
-  availableBalance: number;
-  broker?: string;
-  brokerCode?: string;
+  payment_method: string;
   amount: number;
-  paymentMethod: string;
-  mobile?: string;
-  upiId?: string;
-  accountHolder?: string;
-  accountNumber?: string;
-  ifsc?: string;
-  time: string;
-  status: 'pending' | 'approved' | 'rejected';
-  paymentProof?: string; // URL to payment proof image
+  mobile_number: string;
+  account_holder_name: string;
+  account_number: string;
+  ifsc: string;
+  status: string;
+  _id: string;
+  user_id: string;
+  createdAt: string;
+  updatedAt: string;
+  id: number;
 }
-
-const StatusChip = styled(Chip)(({ theme, color }) => ({
-  fontWeight: 500,
-  borderRadius: '16px',
-  textTransform: 'capitalize',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-  ...(color === 'primary' && {
-    backgroundColor: theme.palette.primary.light,
-    color: theme.palette.primary.dark,
-  }),
-  ...(color === 'success' && {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.dark,
-  }),
-  ...(color === 'error' && {
-    backgroundColor: theme.palette.error.light,
-    color: theme.palette.error.dark,
-  }),
-}));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   borderRadius: '16px',
-  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.12)',
-  },
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+  overflow: 'hidden',
+  backgroundColor: '#1a2234',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  transition: 'all 0.3s ease',
-  borderRadius: '12px',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    transform: 'translateY(-2px)',
-  },
-}));
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: theme.spacing(2),
-  border: 'none'
-}));
-
-const StyledTableHead = styled(TableHead)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
+const StyledTableHead = styled(TableHead)(() => ({
+  backgroundColor: '#212b42',
   '& .MuiTableCell-head': {
+    color: 'white',
     fontWeight: 600,
-    color: theme.palette.text.primary,
-    borderBottom: 'none'
+    borderBottom: 'none',
+    fontSize: '0.875rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    padding: '16px 8px',
   },
 }));
 
-export default function WithdrawalRequestsPage() {
-  const theme = useTheme();
-  const [loading, setLoading] = useState(false);
+const StyledTableRow = styled(TableRow)(() => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: '#141b2d',
+  },
+  '&:nth-of-type(even)': {
+    backgroundColor: '#1a2234',
+  },
+  '&:hover': {
+    backgroundColor: '#273352',
+    transition: 'background-color 0.2s ease',
+  },
+  '& .MuiTableCell-root': {
+    color: 'white',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    fontSize: '0.875rem',
+  },
+}));
+
+const StyledTableCell = styled(TableCell)(() => ({
+  padding: '12px 4px',
+  whiteSpace: 'nowrap',
+  fontSize: '0.875rem',
+}));
+
+const HeaderBox = styled(Box)(({ theme }) => ({
+  background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)',
+  padding: '16px 24px',
+  borderRadius: '16px 16px 0 0',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '0px',
+  color: 'white',
+  minWidth: 'min-content',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  position: 'sticky',
+  top: 0,
+  zIndex: 10
+}));
+
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: '8px',
+  padding: '8px 16px',
+  textTransform: 'none',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  minWidth: '120px',
+  fontWeight: 600,
+  fontSize: '0.875rem',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.15)',
+  }
+}));
+
+const StatusChipStyled = styled(Chip)(({ theme, color }) => ({
+  borderRadius: '6px',
+  fontWeight: 600,
+  fontSize: '0.75rem',
+  textTransform: 'uppercase',
+  padding: '0px 8px',
+  height: '24px',
+  letterSpacing: '0.5px',
+  backgroundColor: 
+    color === 'success' ? alpha('#10B981', 0.9) : 
+    color === 'warning' ? alpha('#F59E0B', 0.9) : 
+    color === 'error' ? alpha('#EF4444', 0.9) : 
+    alpha('#6B7280', 0.9),
+  color: 'white',
+  border: 
+    color === 'success' ? '1px solid #10B981' : 
+    color === 'warning' ? '1px solid #F59E0B' : 
+    color === 'error' ? '1px solid #EF4444' : 
+    '1px solid #6B7280',
+}));
+
+const ActionIconButton = styled(IconButton)(({ theme }) => ({
+  color: 'white',
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  borderRadius: '8px',
+  padding: '8px',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  }
+}));
+
+const TableActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: '6px',
+  textTransform: 'none',
+  fontWeight: 600,
+  fontSize: '0.75rem',
+  padding: '6px 8px',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+  minWidth: '75px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+  }
+}));
+
+const WithdrawalRequests = () => {
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([
-    {
-      id: '1012',
-      name: 'Hariyannan',
-      username: '7362353656',
-      ledgerBalance: 5000,
-      availableBalance: 4200,
-      broker: 'Angel One',
-      brokerCode: 'ANGL-123',
-      amount: 2000,
-      paymentMethod: 'UPI',
-      time: '25 Apr 2025 11:21 am',
-      status: 'pending',
-      paymentProof: '/images/payment-proof-1.jpg'
-    },
-    {
-      id: '1011',
-      name: 'Rahul',
-      username: '8508847725',
-      ledgerBalance: 15000,
-      availableBalance: 12500,
-      broker: 'Zerodha',
-      brokerCode: 'ZRDH-456',
-      amount: 10000,
-      paymentMethod: 'Bank Transfer',
-      time: '25 Apr 2025 10:27 am',
-      status: 'pending',
-      paymentProof: '/images/payment-proof-2.jpg'
-    },
-    {
-      id: '1010',
-      name: 'Laxmi Acharya (Nepal)',
-      username: '9686806717',
-      ledgerBalance: 8000,
-      availableBalance: 6500,
-      broker: 'ICICI Direct',
-      brokerCode: 'ICICI-789',
-      amount: 5000,
-      paymentMethod: 'UPI',
-      time: '25 Apr 2025 09:38 pm',
-      status: 'pending',
-      paymentProof: '/images/payment-proof-3.jpg'
-    },
-    {
-      id: '1009',
-      name: 'Manki Enterprise',
-      username: '9686806717',
-      ledgerBalance: 25000,
-      availableBalance: 22000,
-      broker: 'HDFC Securities',
-      brokerCode: 'HDFC-321',
-      amount: 15000,
-      paymentMethod: 'Bank Transfer',
-      time: '25 Apr 2025 01:36 pm',
-      status: 'pending',
-      paymentProof: '/images/payment-proof-4.jpg'
-    },
-    {
-      id: '1008',
-      name: 'Prakash Amin',
-      username: '9273005195',
-      ledgerBalance: 18000,
-      availableBalance: 14000,
-      broker: 'Upstox',
-      brokerCode: 'UPST-654',
-      amount: 10000,
-      paymentMethod: 'UPI',
-      time: '24 Apr 2025 11:00 am',
-      status: 'approved',
-      paymentProof: '/images/payment-proof-5.jpg'
-    },
-    {
-      id: '1007',
-      name: 'Prakash Amin',
-      username: '9273005195',
-      ledgerBalance: 18000,
-      availableBalance: 14000,
-      broker: 'Upstox',
-      brokerCode: 'UPST-654',
-      amount: 10000,
-      paymentMethod: 'UPI',
-      time: '24 Apr 2025 11:45 am',
-      status: 'approved',
-      paymentProof: '/images/payment-proof-6.jpg'
-    },
-    {
-      id: '1006',
-      name: 'Prakash Amin',
-      username: '9273005195',
-      ledgerBalance: 18000,
-      availableBalance: 14000,
-      broker: 'Upstox',
-      brokerCode: 'UPST-654',
-      amount: 10000,
-      paymentMethod: 'UPI',
-      time: '24 Apr 2025 10:00 am',
-      status: 'approved',
-      paymentProof: '/images/payment-proof-7.jpg'
-    },
-    {
-      id: '1005',
-      name: 'K Gupta',
-      username: '9740407953',
-      ledgerBalance: 30000,
-      availableBalance: 27500,
-      broker: 'Motilal Oswal',
-      brokerCode: 'MOTI-987',
-      amount: 20000,
-      paymentMethod: 'Bank Transfer',
-      time: '20 Apr 2025 04:36 pm',
-      status: 'approved',
-      paymentProof: '/images/payment-proof-8.jpg'
-    }
-  ]);
-  
   const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequest | null>(null);
-  const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [openApproveDialog, setOpenApproveDialog] = useState(false);
   const [openRejectDialog, setOpenRejectDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [approvalReason, setApprovalReason] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
+  const [showAlert, setShowAlert] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const handleViewDetail = (request: WithdrawalRequest) => {
-    setSelectedRequest(request);
-    setOpenDetailDialog(true);
+  useEffect(() => {
+    fetchWithdrawals();
+  }, []);
+
+  const fetchWithdrawals = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('http://13.233.225.7:8000/api/AllWithdraw', {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setWithdrawals(data);
+      } else {
+        throw new Error('Invalid data format received from server');
+      }
+    } catch (err) {
+      console.error('Error fetching withdrawals:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while fetching withdrawal requests');
+      setShowAlert(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleApproveRequest = (request: WithdrawalRequest) => {
     setSelectedRequest(request);
+    setApprovalReason('');
     setOpenApproveDialog(true);
   };
 
   const handleRejectRequest = (request: WithdrawalRequest) => {
     setSelectedRequest(request);
+    setRejectionReason('');
     setOpenRejectDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setOpenDetailDialog(false);
     setOpenApproveDialog(false);
     setOpenRejectDialog(false);
     setRejectionReason('');
+    setApprovalReason('');
+    setSelectedRequest(null);
   };
 
   const handleConfirmApprove = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest || !approvalReason.trim()) return;
     
     try {
       setLoading(true);
-      
-      // In a real app, this would be an API call to update the request status
-      const updatedRequests = withdrawalRequests.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, status: 'approved' as const } 
-          : req
-      );
-      
-      setWithdrawalRequests(updatedRequests);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${selectedRequest._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'approved',
+          reason: approvalReason
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      }
+
+      await fetchWithdrawals(); // Refresh the list after approval
       handleCloseDialog();
     } catch (err) {
-      setError('An error occurred while approving the withdrawal request');
+      console.error('Error approving withdrawal:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while approving the withdrawal request');
+      setShowAlert(true);
     } finally {
       setLoading(false);
     }
   };
 
   const handleConfirmReject = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest || !rejectionReason.trim()) return;
     
     try {
       setLoading(true);
-      
-      // In a real app, this would be an API call to update the request status with rejection reason
-      const updatedRequests = withdrawalRequests.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, status: 'rejected' as const } 
-          : req
-      );
-      
-      setWithdrawalRequests(updatedRequests);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${selectedRequest._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'rejected',
+          reason: rejectionReason
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      }
+
+      await fetchWithdrawals(); // Refresh the list after rejection
       handleCloseDialog();
     } catch (err) {
-      setError('An error occurred while rejecting the withdrawal request');
+      console.error('Error rejecting withdrawal:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while rejecting the withdrawal request');
+      setShowAlert(true);
     } finally {
       setLoading(false);
     }
@@ -312,10 +342,11 @@ export default function WithdrawalRequestsPage() {
   };
 
   const handleSelectAllRequests = () => {
-    if (selectedRequests.length === withdrawalRequests.length) {
+    const pendingRequests = withdrawals.filter(req => req.status === 'pending');
+    if (selectedRequests.length === pendingRequests.length) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(withdrawalRequests.map(req => req.id));
+      setSelectedRequests(pendingRequests.map(req => req._id));
     }
   };
 
@@ -324,467 +355,496 @@ export default function WithdrawalRequestsPage() {
     
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Process all selected requests sequentially
+      const requests = selectedRequests.map(async (requestId) => {
+        const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${requestId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: action === 'approve' ? 'approved' : 'rejected',
+            // Add a generic reason for bulk operations
+            reason: action === 'approve' ? 'Approved in bulk operation' : 'Rejected in bulk operation'
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return response.json();
+      });
+
+      // Wait for all requests to complete
+      await Promise.all(requests);
       
-      const updatedRequests = withdrawalRequests.map(req => 
-        selectedRequests.includes(req.id)
-          ? { ...req, status: action === 'approve' ? 'approved' : 'rejected' as const }
-          : req
-      );
-      
-      setWithdrawalRequests(updatedRequests);
+      await fetchWithdrawals(); // Refresh the list after bulk action
       setSelectedRequests([]);
     } catch (err) {
-      setError(`An error occurred while ${action}ing the selected withdrawal requests`);
+      console.error(`Error ${action}ing withdrawals:`, err);
+      setError(err instanceof Error ? err.message : `An error occurred while ${action}ing the selected withdrawal requests`);
+      setShowAlert(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && withdrawalRequests.length === 0) {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'warning';
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  if (loading && withdrawals.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress size={40} thickness={4} />
       </Box>
     );
   }
 
+  const pendingRequests = withdrawals.filter(req => req.status === 'pending');
+
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ my: 4 }}>
-        <StyledPaper sx={{ p: 3 }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <Collapse in={showAlert}>
+        <Alert 
+          severity="error" 
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => setShowAlert(false)}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2, borderRadius: '8px' }}
+        >
+          {error}
+        </Alert>
+      </Collapse>
+
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        <Typography variant="h5" component="h1" sx={{ fontWeight: 700, color: '#fff' }}>
+          Withdrawal Requests
+        </Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <Tooltip title="Refresh data">
+          <ActionIconButton size="small" onClick={fetchWithdrawals}>
+            <RefreshIcon />
+          </ActionIconButton>
+        </Tooltip>
+        <Tooltip title="Filter">
+          <ActionIconButton size="small">
+            <FilterListIcon />
+          </ActionIconButton>
+        </Tooltip>
+      </Stack>
+
+      <StyledPaper>
+        <HeaderBox>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
+              All Withdrawal Requests
+            </Typography>
+            <Chip 
+              label={`${withdrawals.length} Total`} 
+              size="small" 
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontWeight: 600,
+                borderRadius: '4px',
+              }}
+            />
+          </Box>
           <Box sx={{ 
             display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            mb: 3,
-            background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-            color: 'white',
-            p: 2,
-            borderRadius: '12px',
+            gap: 1.5, 
+            flexShrink: 0,
+            '@media (max-width: 960px)': {
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+            } 
           }}>
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
-              Withdrawal Requests
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              {selectedRequests.length > 0 && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleProcessSelected('approve')}
-                  startIcon={<CheckCircleOutlineIcon />}
-                  sx={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                    }
-                  }}
-                >
-                  Process Selected ({selectedRequests.length})
-                </Button>
-              )}
-              <Button
+            {selectedRequests.length > 0 && (
+              <ActionButton
                 variant="contained"
-                color="success"
+                color="primary"
+                onClick={() => handleProcessSelected('approve')}
                 startIcon={<CheckCircleOutlineIcon />}
-                sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  }
+                sx={{
+                  backgroundColor: alpha('#3b82f6', 0.9),
+                  '&:hover': { backgroundColor: '#3b82f6' }
                 }}
               >
-                Bulk Approve
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<CancelIcon />}
-                sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  }
-                }}
-              >
-                Bulk Reject
-              </Button>
-            </Box>
-          </Box>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-              {error}
-            </Alert>
-          )}
-
-          <TableContainer>
-            <Table 
-              sx={{ 
-                minWidth: 650,
-                '& .MuiTableRow-root': {
-                  position: 'relative',
-                  '&:after': {
-                    content: '""',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '16px',
-                    right: '16px',
-                    height: '1px',
-                    backgroundColor: (theme) => theme.palette.divider,
-                    borderRadius: '8px',
-                  },
-                  '&:last-child:after': {
-                    display: 'none'
-                  }
-                },
+                Process ({selectedRequests.length})
+              </ActionButton>
+            )}
+            <ActionButton
+              variant="contained"
+              color="success"
+              onClick={() => handleProcessSelected('approve')}
+              startIcon={<CheckCircleOutlineIcon />}
+              sx={{
+                backgroundColor: alpha('#10B981', 0.9),
+                '&:hover': { backgroundColor: '#10B981' },
+                minWidth: '140px'
               }}
             >
-              <StyledTableHead>
-                <TableRow>
-                  <StyledTableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedRequests.length === withdrawalRequests.length}
-                      indeterminate={selectedRequests.length > 0 && selectedRequests.length < withdrawalRequests.length}
-                      onChange={handleSelectAllRequests}
-                      sx={{ color: 'white' }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>ID</StyledTableCell>
-                  <StyledTableCell>User Details</StyledTableCell>
-                  <StyledTableCell>Broker & Code</StyledTableCell>
-                  <StyledTableCell>Payment Proof</StyledTableCell>
-                  <StyledTableCell>Time</StyledTableCell>
-                  <StyledTableCell align="center">Actions</StyledTableCell>
-                </TableRow>
-              </StyledTableHead>
-              <TableBody>
-                {withdrawalRequests.map((request) => (
-                  <StyledTableRow key={request.id} hover>
-                    <StyledTableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedRequests.includes(request.id)}
-                        onChange={() => handleSelectRequest(request.id)}
-                      />
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        #{request.id}
+              Bulk Approve
+            </ActionButton>
+            <ActionButton
+              variant="contained"
+              color="error"
+              onClick={() => handleProcessSelected('reject')}
+              startIcon={<CancelIcon />}
+              sx={{
+                backgroundColor: alpha('#EF4444', 0.9),
+                '&:hover': { backgroundColor: '#EF4444' },
+                minWidth: '140px'
+              }}
+            >
+              Bulk Reject
+            </ActionButton>
+          </Box>
+        </HeaderBox>
+
+        <TableContainer sx={{ 
+          backgroundColor: '#1a2234',
+          overflowX: 'auto',
+          position: 'relative',
+          maxHeight: 'calc(100vh - 250px)',
+          '&::-webkit-scrollbar': {
+            height: '8px',
+            width: '8px',
+            backgroundColor: '#1a2234',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: 'rgba(255,255,255,0.3)',
+          }
+        }}>
+          <Table stickyHeader sx={{ minWidth: 'auto', tableLayout: 'fixed' }}>
+            <StyledTableHead>
+              <TableRow>
+                <StyledTableCell padding="checkbox" align="center" sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '40px' }}>
+                  <Checkbox
+                    checked={selectedRequests.length === pendingRequests.length && pendingRequests.length > 0}
+                    indeterminate={selectedRequests.length > 0 && selectedRequests.length < pendingRequests.length}
+                    onChange={handleSelectAllRequests}
+                    sx={{ 
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      '&.Mui-checked': {
+                        color: '#3b82f6',
+                      },
+                      '&.MuiCheckbox-indeterminate': {
+                        color: '#3b82f6',
+                      }
+                    }}
+                  />
+                </StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '60px' }}>ID</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '140px' }}>Account Holder</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '120px' }}>Payment Method</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '100px' }}>Amount</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '130px' }}>Account Number</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '100px' }}>IFSC</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '120px' }}>Mobile Number</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '90px' }}>Status</StyledTableCell>
+                <StyledTableCell sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '120px' }}>Created At</StyledTableCell>
+                <StyledTableCell align="center" sx={{ backgroundColor: '#212b42', position: 'sticky', top: 0, zIndex: 1, width: '180px' }}>Actions</StyledTableCell>
+              </TableRow>
+            </StyledTableHead>
+            <TableBody>
+              {withdrawals.length === 0 ? (
+                <StyledTableRow>
+                  <StyledTableCell colSpan={11} align="center">
+                    <Box sx={{ py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <InfoOutlinedIcon sx={{ fontSize: 48, color: 'rgba(255, 255, 255, 0.3)' }} />
+                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                        No withdrawal requests found
                       </Typography>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {request.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {request.username}
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Ledger: ₹{request.ledgerBalance}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Available: ₹{request.availableBalance}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {request.broker ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {request.broker}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {request.brokerCode}
-                          </Typography>
-                        </Box>
-                      ) : '-'}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {request.paymentProof ? (
-                        <Box 
-                          component="img" 
-                          src={request.paymentProof} 
-                          alt="Payment Proof"
+                      <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                        There are no withdrawal requests to display at the moment
+                      </Typography>
+                      <Button 
+                        variant="outlined" 
+                        onClick={fetchWithdrawals}
+                        startIcon={<RefreshIcon />}
+                        sx={{ 
+                          mt: 1, 
+                          color: '#3b82f6', 
+                          borderColor: '#3b82f6',
+                          '&:hover': { borderColor: '#2563eb', backgroundColor: 'rgba(59, 130, 246, 0.1)' } 
+                        }}
+                      >
+                        Refresh
+                      </Button>
+                    </Box>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ) : (
+                withdrawals.map((withdrawal) => (
+                  <StyledTableRow key={withdrawal._id}>
+                    <StyledTableCell padding="checkbox" align="center">
+                      {withdrawal.status === 'pending' && (
+                        <Checkbox
+                          checked={selectedRequests.includes(withdrawal._id)}
+                          onChange={() => handleSelectRequest(withdrawal._id)}
                           sx={{ 
-                            width: 80, 
-                            height: 80, 
-                            objectFit: 'cover', 
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'scale(1.1)',
-                              boxShadow: 3
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            '&.Mui-checked': {
+                              color: '#3b82f6',
                             }
-                          }}
-                          onClick={() => handleViewDetail(request)}
-                        />
-                      ) : (
-                        <Box 
-                          component="img" 
-                          src="/placeholder-document.jpg" 
-                          alt="No Document"
-                          sx={{ 
-                            width: 80, 
-                            height: 80, 
-                            objectFit: 'cover', 
-                            borderRadius: '8px',
-                            opacity: 0.5
                           }}
                         />
                       )}
                     </StyledTableCell>
                     <StyledTableCell>
-                      <Typography variant="body2">
-                        {request.time}
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                        #{withdrawal.id}
                       </Typography>
                     </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        {request.status === 'pending' ? (
+                    <StyledTableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {withdrawal.account_holder_name}
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Chip 
+                        label={withdrawal.payment_method} 
+                        size="small"
+                        sx={{ 
+                          backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                          color: '#3b82f6',
+                          fontWeight: 600,
+                          fontSize: '0.7rem',
+                          height: '20px',
+                          borderRadius: '4px',
+                          maxWidth: '100%',
+                        }} 
+                      />
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#10B981', fontSize: '0.8rem' }}>
+                        ₹{withdrawal.amount.toLocaleString()}
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Tooltip title={withdrawal.account_number} arrow placement="top">
+                        <Typography variant="body2" sx={{ fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {withdrawal.account_number}
+                        </Typography>
+                      </Tooltip>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                        {withdrawal.ifsc}
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                        {withdrawal.mobile_number}
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <StatusChipStyled
+                        label={withdrawal.status.toUpperCase()}
+                        color={getStatusColor(withdrawal.status) as any}
+                        sx={{ fontSize: '0.7rem', height: '20px' }}
+                      />
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Typography variant="body2" sx={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                        {format(new Date(withdrawal.createdAt), 'dd MMM yyyy')}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.65rem' }}>
+                        {format(new Date(withdrawal.createdAt), 'HH:mm')}
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell align="center" sx={{ width: '180px' }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: 1, 
+                        justifyContent: 'center',
+                        position: 'relative',
+                        zIndex: 2
+                      }}>
+                        {withdrawal.status === 'pending' && (
                           <>
-                            <Button 
-                              variant="contained" 
+                            <TableActionButton
+                              variant="contained"
                               color="success"
                               size="small"
-                              onClick={() => handleApproveRequest(request)}
-                              startIcon={<CheckCircleOutlineIcon />}
+                              onClick={() => handleApproveRequest(withdrawal)}
+                              startIcon={<CheckCircleOutlineIcon fontSize="small" />}
                               sx={{ 
-                                textTransform: 'none',
-                                borderRadius: '8px',
-                                minWidth: '100px'
+                                backgroundColor: alpha('#10B981', 0.9),
+                                '&:hover': { backgroundColor: '#10B981' },
+                                fontSize: '0.75rem',
+                                minWidth: '80px',
+                                whiteSpace: 'nowrap'
                               }}
                             >
                               Approve
-                            </Button>
-                            <Button 
-                              variant="contained" 
+                            </TableActionButton>
+                            <TableActionButton
+                              variant="contained"
                               color="error"
                               size="small"
-                              onClick={() => handleRejectRequest(request)}
-                              startIcon={<CancelIcon />}
+                              onClick={() => handleRejectRequest(withdrawal)}
+                              startIcon={<CancelIcon fontSize="small" />}
                               sx={{ 
-                                textTransform: 'none',
-                                borderRadius: '8px',
-                                minWidth: '100px'
+                                backgroundColor: alpha('#EF4444', 0.9),
+                                '&:hover': { backgroundColor: '#EF4444' },
+                                border: '2px solid rgba(255, 255, 255, 0.2)',
+                                fontSize: '0.75rem',
+                                minWidth: '80px',
+                                whiteSpace: 'nowrap'
                               }}
                             >
                               Reject
-                            </Button>
+                            </TableActionButton>
                           </>
-                        ) : (
-                          <StatusChip 
-                            label={request.status} 
-                            size="medium" 
-                            color={
-                              request.status === 'approved' ? 'success' : 
-                              request.status === 'rejected' ? 'error' : 'primary'
-                            } 
-                          />
                         )}
                       </Box>
                     </StyledTableCell>
                   </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </StyledPaper>
-      </Box>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </StyledPaper>
 
-      {/* Detail Dialog */}
-      <Dialog
-        open={openDetailDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
-          }
-        }}
-      >
-        <DialogTitle sx={{ 
-          background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-          color: 'white',
-          borderRadius: '16px 16px 0 0',
-        }}>
-          Withdrawal Request Details
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 3 }}>
-          {selectedRequest && (
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Card sx={{ mb: 3, borderRadius: '12px' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                      User Information
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Typography variant="body1">
-                        <strong>ID:</strong> {selectedRequest.id}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Name:</strong> {selectedRequest.name}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Username:</strong> {selectedRequest.username}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Ledger Balance:</strong> ₹{selectedRequest.ledgerBalance}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Available Balance:</strong> ₹{selectedRequest.availableBalance}
-                      </Typography>
-                      {selectedRequest.broker && (
-                        <>
-                          <Typography variant="body1">
-                            <strong>Broker:</strong> {selectedRequest.broker}
-                          </Typography>
-                          <Typography variant="body1">
-                            <strong>Broker Code:</strong> {selectedRequest.brokerCode}
-                          </Typography>
-                        </>
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ borderRadius: '12px' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                      Withdrawal Information
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Typography variant="body1">
-                        <strong>Amount:</strong> ₹{selectedRequest.amount}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Payment Method:</strong> {selectedRequest.paymentMethod}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Time:</strong> {selectedRequest.time}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Status:</strong> 
-                        <StatusChip 
-                          label={selectedRequest.status} 
-                          size="small" 
-                          color={
-                            selectedRequest.status === 'approved' ? 'success' : 
-                            selectedRequest.status === 'rejected' ? 'error' : 'primary'
-                          } 
-                          sx={{ ml: 1 }}
-                        />
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Card sx={{ borderRadius: '12px' }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                      Payment Details
-                    </Typography>
-                    {selectedRequest.paymentMethod === 'Bank Transfer' ? (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <Typography variant="body1">
-                          <strong>Account Holder:</strong> {selectedRequest.accountHolder || selectedRequest.name}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Account Number:</strong> {selectedRequest.accountNumber || '****1234'}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>IFSC:</strong> {selectedRequest.ifsc || 'HDFC0001234'}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <Typography variant="body1">
-                          <strong>UPI ID:</strong> {selectedRequest.upiId || `${selectedRequest.username.substring(0, 5)}@upi`}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Mobile:</strong> {selectedRequest.mobile || selectedRequest.username}
-                        </Typography>
-                      </Box>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          {selectedRequest && selectedRequest.status === 'pending' && (
-            <>
-              <Button 
-                onClick={() => {
-                  handleCloseDialog();
-                  handleRejectRequest(selectedRequest);
-                }} 
-                color="error"
-                variant="outlined"
-                startIcon={<CancelIcon />}
-                sx={{ borderRadius: '8px' }}
-              >
-                Reject
-              </Button>
-              <Button 
-                onClick={() => {
-                  handleCloseDialog();
-                  handleApproveRequest(selectedRequest);
-                }} 
-                color="success"
-                variant="contained"
-                startIcon={<CheckCircleOutlineIcon />}
-                sx={{ borderRadius: '8px' }}
-              >
-                Approve
-              </Button>
-            </>
-          )}
-          <Button 
-            onClick={handleCloseDialog} 
-            color="primary"
-            sx={{ borderRadius: '8px' }}
-          >
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Approve Dialog */}
       <Dialog
         open={openApproveDialog}
         onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+            borderRadius: '12px',
+            backgroundColor: '#1a2234',
+            color: 'white',
+            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
+            overflow: 'hidden',
           }
         }}
       >
         <DialogTitle sx={{ 
-          background: 'linear-gradient(45deg, #2e7d32 30%, #4caf50 90%)',
+          background: 'linear-gradient(90deg, #059669 0%, #10B981 100%)',
           color: 'white',
-          borderRadius: '16px 16px 0 0',
+          borderRadius: '12px 12px 0 0',
+          padding: '20px 24px',
+          fontWeight: 600,
         }}>
           Approve Withdrawal Request
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          <DialogContentText>
-            Are you sure you want to approve this withdrawal request? This action will update the user's ledger balance.
+        <DialogContent sx={{ mt: 3, px: 3 }}>
+          {selectedRequest && (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Request ID
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  #{selectedRequest.id}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Account Holder
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {selectedRequest.account_holder_name}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Amount
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#10B981' }}>
+                  ₹{selectedRequest.amount.toLocaleString()}
+                </Typography>
+              </Box>
+              <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+            </Box>
+          )}
+          <DialogContentText sx={{ color: 'rgba(255,255,255,0.7)', mb: 2 }}>
+            Please provide a reason for approving this withdrawal request:
           </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Approval Reason"
+            fullWidth
+            multiline
+            rows={3}
+            value={approvalReason}
+            onChange={(e) => setApprovalReason(e.target.value)}
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '8px',
+                '& fieldset': {
+                  borderColor: 'rgba(255,255,255,0.2)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255,255,255,0.4)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#10B981',
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255,255,255,0.7)',
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#10B981',
+              }
+            }}
+          />
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
           <Button 
-            onClick={handleCloseDialog} 
-            color="primary"
-            sx={{ borderRadius: '8px' }}
+            onClick={handleCloseDialog}
+            variant="outlined"
+            sx={{ 
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.3)',
+              borderRadius: '8px', 
+              textTransform: 'none',
+              px: 3,
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.05)'
+              }
+            }}
           >
             Cancel
           </Button>
@@ -792,55 +852,128 @@ export default function WithdrawalRequestsPage() {
             onClick={handleConfirmApprove} 
             color="success" 
             variant="contained"
-            disabled={loading}
-            sx={{ borderRadius: '8px' }}
+            disabled={loading || !approvalReason.trim()}
+            sx={{ 
+              borderRadius: '8px',
+              textTransform: 'none',
+              backgroundColor: '#10B981',
+              fontWeight: 600,
+              px: 3,
+              '&:hover': { backgroundColor: '#059669' }
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Approve'}
+            {loading ? <CircularProgress size={24} /> : 'Confirm Approval'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Reject Dialog */}
       <Dialog
         open={openRejectDialog}
         onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+            borderRadius: '12px',
+            backgroundColor: '#1a2234',
+            color: 'white',
+            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
+            overflow: 'hidden',
           }
         }}
       >
         <DialogTitle sx={{ 
-          background: 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
+          background: 'linear-gradient(90deg, #DC2626 0%, #EF4444 100%)',
           color: 'white',
-          borderRadius: '16px 16px 0 0',
+          borderRadius: '12px 12px 0 0',
+          padding: '20px 24px',
+          fontWeight: 600,
         }}>
           Reject Withdrawal Request
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          <DialogContentText>
+        <DialogContent sx={{ mt: 3, px: 3 }}>
+          {selectedRequest && (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Request ID
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  #{selectedRequest.id}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Account Holder
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {selectedRequest.account_holder_name}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  Amount
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#10B981' }}>
+                  ₹{selectedRequest.amount.toLocaleString()}
+                </Typography>
+              </Box>
+              <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+            </Box>
+          )}
+          <DialogContentText sx={{ color: 'rgba(255,255,255,0.7)', mb: 2 }}>
             Please provide a reason for rejecting this withdrawal request:
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
-            id="rejection-reason"
             label="Rejection Reason"
-            type="text"
             fullWidth
             multiline
             rows={3}
             value={rejectionReason}
             onChange={(e) => setRejectionReason(e.target.value)}
-            sx={{ mt: 2, borderRadius: '8px' }}
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '8px',
+                '& fieldset': {
+                  borderColor: 'rgba(255,255,255,0.2)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255,255,255,0.4)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#EF4444',
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255,255,255,0.7)',
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#EF4444',
+              }
+            }}
           />
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
           <Button 
-            onClick={handleCloseDialog} 
-            color="primary"
-            sx={{ borderRadius: '8px' }}
+            onClick={handleCloseDialog}
+            variant="outlined"
+            sx={{ 
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.3)',
+              borderRadius: '8px', 
+              textTransform: 'none',
+              px: 3,
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.05)'
+              }
+            }}
           >
             Cancel
           </Button>
@@ -849,12 +982,21 @@ export default function WithdrawalRequestsPage() {
             color="error" 
             variant="contained"
             disabled={loading || !rejectionReason.trim()}
-            sx={{ borderRadius: '8px' }}
+            sx={{ 
+              borderRadius: '8px',
+              textTransform: 'none',
+              backgroundColor: '#EF4444',
+              fontWeight: 600,
+              px: 3,
+              '&:hover': { backgroundColor: '#DC2626' }
+            }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Reject'}
+            {loading ? <CircularProgress size={24} /> : 'Confirm Rejection'}
           </Button>
         </DialogActions>
       </Dialog>
     </Container>
   );
-}
+};
+
+export default WithdrawalRequests;

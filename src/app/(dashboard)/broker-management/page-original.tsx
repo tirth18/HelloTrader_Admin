@@ -319,6 +319,16 @@ const BrokerManagementPage: React.FC = () => {
     setFilters({ username: '', accountStatus: 'All' });
   };
 
+  // Helper function to safely copy text to clipboard
+  const handleSafeCopy = (text: string, notifyFn: any) => {
+    try {
+      navigator.clipboard.writeText(text);
+      notifyFn('Copied to clipboard!', { variant: 'success' });
+    } catch (err) {
+      notifyFn('Failed to copy text', { variant: 'error' });
+    }
+  };
+
   const handleCopyRefCode = (refCode: string) => {
     handleSafeCopy(refCode, enqueueSnackbar);
   };

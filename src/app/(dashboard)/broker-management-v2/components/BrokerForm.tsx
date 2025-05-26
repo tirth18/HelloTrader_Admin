@@ -40,6 +40,12 @@ export interface Broker {
   description: string;
   broker_type: string;
   parent_id: number | null;
+  balance?: number;  // Added for fund operations
+  
+  // Additional fields used in ViewBrokerProfile
+  id?: string | number;
+  creditLimit?: number;
+  totalClients?: number;
 
   // Config
   account_status: string;
@@ -179,6 +185,7 @@ interface BrokerFormProps {
   onClose: () => void;
   onSubmit: (values: Broker) => Promise<void>;
   isSubmitting: boolean;
+  existingBrokers: Array<{ id: string; name: string }>;
 }
 
 // API service function
@@ -279,7 +286,13 @@ const createBroker = async (brokerData: Broker, getToken: () => Promise<string>)
   }
 };
 
-export default function BrokerForm({ open, onClose, onSubmit, isSubmitting }: BrokerFormProps) {
+export default function BrokerForm({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  isSubmitting,
+  existingBrokers 
+}: BrokerFormProps) {
   const [error, setError] = React.useState<string | null>(null);
   const [validationErrors, setValidationErrors] = React.useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -577,6 +590,28 @@ export default function BrokerForm({ open, onClose, onSubmit, isSubmitting }: Br
                   </Select>
                   {getFieldError('broker_type') && (
                     <FormHelperText>{getFieldError('broker_type')}</FormHelperText>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth error={!!getFieldError('parent_id')}>
+                  <Typography variant="caption" sx={{ mb: 1 }}>Parent Broker</Typography>
+                  <Select
+                    name="parent_id"
+                    value={formik.values.parent_id || ''}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    disabled={isSubmitting}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {existingBrokers.map((broker) => (
+                      <MenuItem key={broker.id} value={broker.id}>
+                        {broker.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {getFieldError('parent_id') && (
+                    <FormHelperText>{getFieldError('parent_id')}</FormHelperText>
                   )}
                 </FormControl>
               </Grid>

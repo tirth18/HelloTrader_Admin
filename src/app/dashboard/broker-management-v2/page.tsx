@@ -155,7 +155,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.first_name}
                                 onChange={formik.handleChange}
                                 error={formik.touched.first_name && Boolean(formik.errors.first_name)}
-                                helperText={formik.touched.first_name && formik.errors.first_name}
+                                helperText={formik.touched.first_name && typeof formik.errors.first_name === 'string' ? formik.errors.first_name : ''}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -166,7 +166,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.last_name}
                                 onChange={formik.handleChange}
                                 error={formik.touched.last_name && Boolean(formik.errors.last_name)}
-                                helperText={formik.touched.last_name && formik.errors.last_name}
+                                helperText={formik.touched.last_name && typeof formik.errors.last_name === 'string' ? formik.errors.last_name : ''}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -177,7 +177,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.username}
                                 onChange={formik.handleChange}
                                 error={formik.touched.username && Boolean(formik.errors.username)}
-                                helperText={formik.touched.username && formik.errors.username}
+                                helperText={formik.touched.username && typeof formik.errors.username === 'string' ? formik.errors.username : ''}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -189,7 +189,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.password}
                                 onChange={formik.handleChange}
                                 error={formik.touched.password && Boolean(formik.errors.password)}
-                                helperText={formik.touched.password && formik.errors.password}
+                                helperText={formik.touched.password && typeof formik.errors.password === 'string' ? formik.errors.password : ''}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -201,7 +201,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.transaction_password}
                                 onChange={formik.handleChange}
                                 error={formik.touched.transaction_password && Boolean(formik.errors.transaction_password)}
-                                helperText={formik.touched.transaction_password && formik.errors.transaction_password}
+                                helperText={formik.touched.transaction_password && typeof formik.errors.transaction_password === 'string' ? formik.errors.transaction_password : ''}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -213,7 +213,7 @@ export default function BrokerManagementV2() {
                                 value={formik.values.broker_type}
                                 onChange={formik.handleChange}
                                 error={formik.touched.broker_type && Boolean(formik.errors.broker_type)}
-                                helperText={formik.touched.broker_type && formik.errors.broker_type}
+                                helperText={formik.touched.broker_type && typeof formik.errors.broker_type === 'string' ? formik.errors.broker_type : ''}
                             >
                                 <MenuItem value="Broker">Broker</MenuItem>
                                 <MenuItem value="Sub-Broker">Sub-Broker</MenuItem>
@@ -249,10 +249,7 @@ export default function BrokerManagementV2() {
                                         value={formik.values.mcx_brokerage}
                                         onChange={formik.handleChange}
                                         error={formik.touched.mcx_brokerage && Boolean(formik.errors.mcx_brokerage)}
-                                        helperText={
-                                            (formik.touched.mcx_brokerage && formik.errors.mcx_brokerage) ||
-                                            "Exposure auto calculates the margin money required for any new trade entry. Calculation: turnover of a trade divided by Exposure is required margin."
-                                        }
+                                        helperText={formik.touched.mcx_brokerage && typeof formik.errors.mcx_brokerage === 'string' ? formik.errors.mcx_brokerage : "Exposure auto calculates the margin money required for any new trade entry. Calculation: turnover of a trade divided by Exposure is required margin."}
                                     />
                                 </Grid>
                                 <Grid item xs={12} md={6}>
@@ -322,7 +319,7 @@ export default function BrokerManagementV2() {
                                         value={formik.values.equity_brokerage}
                                         onChange={formik.handleChange}
                                         error={formik.touched.equity_brokerage && Boolean(formik.errors.equity_brokerage)}
-                                        helperText={formik.touched.equity_brokerage && formik.errors.equity_brokerage}
+                                        helperText={formik.touched.equity_brokerage && typeof formik.errors.equity_brokerage === 'string' ? formik.errors.equity_brokerage : ''}
                                     />
                                 </Grid>
                                 <Grid item xs={12} md={6}>

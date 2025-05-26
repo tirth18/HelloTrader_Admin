@@ -8,7 +8,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  ChartOptions,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -36,7 +35,7 @@ export const BarChart = () => {
     ]
   };
 
-  const options: ChartOptions<'bar'> = {
+  const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -44,7 +43,7 @@ export const BarChart = () => {
         display: false,
       },
       tooltip: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
         backgroundColor: theme.palette.background.paper,
         titleColor: theme.palette.text.primary,
@@ -54,7 +53,7 @@ export const BarChart = () => {
         padding: 12,
         boxPadding: 4,
         callbacks: {
-          label: function(context) {
+          label: function(context: any) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
@@ -86,7 +85,7 @@ export const BarChart = () => {
         },
         ticks: {
           color: theme.palette.text.secondary,
-          callback: function(value) {
+          callback: function(value: any) {
             if (typeof value === 'number') {
               return new Intl.NumberFormat('en-IN', {
                 style: 'currency',

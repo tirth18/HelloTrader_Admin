@@ -32,6 +32,7 @@ import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
+import { useRouter } from "next/navigation";
 
 // Styled components
 const PageContainer = styled(Box)(() => ({
@@ -188,8 +189,8 @@ const InputLabel = styled(Typography)(() => ({
 }));
 
 // Mock user data
-  const mockUsers = [
-    {
+const mockUsers = [
+  {
     id: 347,
     username: 'LAK159',
     realUsername: 'jain122',
@@ -223,6 +224,7 @@ const UsersPage: React.FC = () => {
   const [users, setUsers] = useState(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [accountStatus, setAccountStatus] = useState('All');
+  const router = useRouter();
   
   // Dialogs state
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -408,7 +410,7 @@ const UsersPage: React.FC = () => {
           <CreateUserButton 
             variant="contained" 
             startIcon={<AddIcon />}
-            onClick={handleOpenAddDialog}
+            onClick={() => router.push("/users/create")}
           >
             CREATE USER
           </CreateUserButton>
@@ -420,147 +422,78 @@ const UsersPage: React.FC = () => {
           </Typography>
       </Box>
 
-        <StyledTableContainer component={Paper}>
-          <Table>
-            <StyledTableHead>
-              <TableRow>
-                <StyledTableCell>#</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
-                <StyledTableCell>ID</StyledTableCell>
-                <StyledTableCell>Username</StyledTableCell>
-                <StyledTableCell>Parent</StyledTableCell>
-                <StyledTableCell>Brokerage Share</StyledTableCell>
-                <StyledTableCell>Profit Share</StyledTableCell>
-                <StyledTableCell>Credit Limit</StyledTableCell>
-                <StyledTableCell>Type</StyledTableCell>
-                <StyledTableCell>Total Clients</StyledTableCell>
-                <StyledTableCell>Ref. Code</StyledTableCell>
-                <StyledTableCell>Account Status</StyledTableCell>
-              </TableRow>
-            </StyledTableHead>
-            <TableBody>
-              {users.map((user) => (
-                <StyledTableRow key={user.id}>
-                  <StyledTableCell>{user.id}</StyledTableCell>
-                  <StyledTableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <ActionButton size="small">
-                        <VisibilityIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small" onClick={() => handleOpenEditDialog(user)}>
-                        <EditIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small">
-                        <FileDownloadIcon fontSize="small" />
-                      </ActionButton>
-                      <ActionButton size="small" onClick={() => handleOpenDeleteDialog(user)}>
-                        <DeleteIcon fontSize="small" />
-                      </ActionButton>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.id}</StyledTableCell>
-                  <StyledTableCell>
-                    {user.username}
-                    <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
-                      ({user.realUsername})
-                    </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    {user.parent}
-                    <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
-                      (admin: {user.parentId})
-                    </Typography>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.brokerageShare.toFixed(2)}%</StyledTableCell>
-                  <StyledTableCell>{user.profitShare.toFixed(2)}%</StyledTableCell>
-                  <StyledTableCell>{user.creditLimit.toFixed(4)}</StyledTableCell>
-                  <StyledTableCell>{user.type}</StyledTableCell>
-                  <StyledTableCell>{user.totalClients}</StyledTableCell>
-                  <StyledTableCell>
-                    <RefCodeText>{user.refCode}</RefCodeText>
-                    <Box sx={{ mt: 1 }}>
-                      <GenerateButton variant="outlined" size="small">
-                        Generate
-                      </GenerateButton>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.status}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <StyledTableContainer>
+          <Paper sx={{ backgroundColor: '#1a2138', borderRadius: 0 }}>
+            <Table>
+              <StyledTableHead>
+                <TableRow>
+                  <StyledTableCell>#</StyledTableCell>
+                  <StyledTableCell>Actions</StyledTableCell>
+                  <StyledTableCell>ID</StyledTableCell>
+                  <StyledTableCell>Username</StyledTableCell>
+                  <StyledTableCell>Parent</StyledTableCell>
+                  <StyledTableCell>Brokerage Share</StyledTableCell>
+                  <StyledTableCell>Profit Share</StyledTableCell>
+                  <StyledTableCell>Credit Limit</StyledTableCell>
+                  <StyledTableCell>Type</StyledTableCell>
+                  <StyledTableCell>Total Clients</StyledTableCell>
+                  <StyledTableCell>Ref. Code</StyledTableCell>
+                  <StyledTableCell>Account Status</StyledTableCell>
+                </TableRow>
+              </StyledTableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <StyledTableRow key={user.id}>
+                    <StyledTableCell>{user.id}</StyledTableCell>
+                    <StyledTableCell>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <ActionButton size="small">
+                          <VisibilityIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small" onClick={() => handleOpenEditDialog(user)}>
+                          <EditIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small">
+                          <FileDownloadIcon fontSize="small" />
+                        </ActionButton>
+                        <ActionButton size="small" onClick={() => handleOpenDeleteDialog(user)}>
+                          <DeleteIcon fontSize="small" />
+                        </ActionButton>
+                      </Box>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.id}</StyledTableCell>
+                    <StyledTableCell>
+                      {user.username}
+                      <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
+                        ({user.realUsername})
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      {user.parent}
+                      <Typography variant="caption" display="block" sx={{ color: '#aaa' }}>
+                        (admin: {user.parentId})
+                      </Typography>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.brokerageShare.toFixed(2)}%</StyledTableCell>
+                    <StyledTableCell>{user.profitShare.toFixed(2)}%</StyledTableCell>
+                    <StyledTableCell>{user.creditLimit.toFixed(4)}</StyledTableCell>
+                    <StyledTableCell>{user.type}</StyledTableCell>
+                    <StyledTableCell>{user.totalClients}</StyledTableCell>
+                    <StyledTableCell>
+                      <RefCodeText>{user.refCode}</RefCodeText>
+                      <Box sx={{ mt: 1 }}>
+                        <GenerateButton variant="outlined" size="small">
+                          Generate
+                        </GenerateButton>
+                      </Box>
+                    </StyledTableCell>
+                    <StyledTableCell>{user.status}</StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
         </StyledTableContainer>
-
-        {/* Add User Dialog */}
-        <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Enter the details for the new user.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Username"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={newUser.username}
-              onChange={(e) => setNewUser({...newUser, username: e.target.value})}
-            />
-            <TextField
-              margin="dense"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="outlined"
-              value={newUser.password}
-              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-            />
-            <FormControl fullWidth margin="dense">
-              <Select
-                value={newUser.type}
-                displayEmpty
-                onChange={(e) => setNewUser({...newUser, type: e.target.value as string})}
-              >
-                <MenuItem value="Broker">Broker</MenuItem>
-                <MenuItem value="Client">Client</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              margin="dense"
-              label="Brokerage Share (%)"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.brokerageShare}
-              onChange={(e) => setNewUser({...newUser, brokerageShare: parseFloat(e.target.value)})}
-            />
-            <TextField
-              margin="dense"
-              label="Profit Share (%)"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.profitShare}
-              onChange={(e) => setNewUser({...newUser, profitShare: parseFloat(e.target.value)})}
-            />
-            <TextField
-              margin="dense"
-              label="Credit Limit"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={newUser.creditLimit}
-              onChange={(e) => setNewUser({...newUser, creditLimit: parseFloat(e.target.value)})}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAddDialog}>Cancel</Button>
-            <Button onClick={handleAddUser} variant="contained" color="primary">Create</Button>
-          </DialogActions>
-        </Dialog>
 
         {/* Edit User Dialog */}
         <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>

@@ -202,4 +202,6 @@ export const RoleManagement: React.FC = () => {
       )}
     </Container>
   );
-}; 
+};
+
+export default RoleManagement; 

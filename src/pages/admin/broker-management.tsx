@@ -27,6 +27,7 @@ import {
     Stack,
     Tooltip,
     DialogContentText,
+    SelectChangeEvent,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -35,8 +36,30 @@ import {
     Settings as SettingsIcon,
 } from '@mui/icons-material';
 
+interface Broker {
+    id: number;
+    name: string;
+    apiKey: string;
+    status: string;
+    tradingEnabled: boolean;
+    type: string;
+    usersCount: number;
+    createdAt: string;
+}
+
+interface FormData {
+    name: string;
+    apiKey: string;
+    status: string;
+    tradingEnabled: string;
+    type: string;
+    apiSecret: string;
+    callbackUrl: string;
+    description: string;
+}
+
 // Mock broker data
-const initialBrokers = [
+const initialBrokers: Broker[] = [
     {
         id: 1,
         name: 'Zerodha',
@@ -96,18 +119,18 @@ const brokerTypes = ['Stock', 'Futures', 'Options', 'Commodity', 'Forex', 'Crypt
 const brokerStatuses = ['Active', 'Inactive', 'Pending', 'Suspended'];
 
 const BrokerManagementPage: React.FC = () => {
-    const [brokers, setBrokers] = useState(initialBrokers);
+    const [brokers, setBrokers] = useState<Broker[]>(initialBrokers);
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [currentBroker, setCurrentBroker] = useState<any>(null);
+    const [currentBroker, setCurrentBroker] = useState<Broker | null>(null);
     
     // Form state
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         name: '',
         apiKey: '',
         status: 'Active',
-        tradingEnabled: true,
+        tradingEnabled: 'true',
         type: 'Stock',
         apiSecret: '',
         callbackUrl: '',
@@ -120,7 +143,7 @@ const BrokerManagementPage: React.FC = () => {
             name: '',
             apiKey: '',
             status: 'Active',
-            tradingEnabled: true,
+            tradingEnabled: 'true',
             type: 'Stock',
             apiSecret: '',
             callbackUrl: '',
@@ -130,13 +153,13 @@ const BrokerManagementPage: React.FC = () => {
     };
 
     // Open edit dialog
-    const handleOpenEditDialog = (broker: any) => {
+    const handleOpenEditDialog = (broker: Broker) => {
         setCurrentBroker(broker);
         setFormData({
             name: broker.name,
             apiKey: broker.apiKey,
             status: broker.status,
-            tradingEnabled: broker.tradingEnabled,
+            tradingEnabled: broker.tradingEnabled.toString(),
             type: broker.type,
             apiSecret: '••••••••••••',
             callbackUrl: 'https://api.hellotrader.com/callback/' + broker.id,
@@ -146,14 +169,16 @@ const BrokerManagementPage: React.FC = () => {
     };
 
     // Open delete dialog
-    const handleOpenDeleteDialog = (broker: any) => {
+    const handleOpenDeleteDialog = (broker: Broker) => {
         setCurrentBroker(broker);
         setOpenDeleteDialog(true);
     };
 
     // Handle form input change
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
-        const { name, value } = e.target as { name: string; value: string | boolean };
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
+    ) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
             [name]: value,
@@ -162,12 +187,12 @@ const BrokerManagementPage: React.FC = () => {
 
     // Add broker
     const handleAddBroker = () => {
-        const newBroker = {
+        const newBroker: Broker = {
             id: brokers.length + 1,
             name: formData.name,
             apiKey: formData.apiKey,
             status: formData.status,
-            tradingEnabled: formData.tradingEnabled,
+            tradingEnabled: formData.tradingEnabled === 'true',
             type: formData.type,
             usersCount: 0,
             createdAt: new Date().toISOString().split('T')[0],
@@ -178,6 +203,8 @@ const BrokerManagementPage: React.FC = () => {
 
     // Edit broker
     const handleEditBroker = () => {
+        if (!currentBroker) return;
+        
         const updatedBrokers = brokers.map((broker) =>
             broker.id === currentBroker.id
                 ? {
@@ -185,7 +212,7 @@ const BrokerManagementPage: React.FC = () => {
                       name: formData.name,
                       apiKey: formData.apiKey,
                       status: formData.status,
-                      tradingEnabled: formData.tradingEnabled,
+                      tradingEnabled: formData.tradingEnabled === 'true',
                       type: formData.type,
                   }
                 : broker
@@ -196,6 +223,8 @@ const BrokerManagementPage: React.FC = () => {
 
     // Delete broker
     const handleDeleteBroker = () => {
+        if (!currentBroker) return;
+        
         const updatedBrokers = brokers.filter((broker) => broker.id !== currentBroker.id);
         setBrokers(updatedBrokers);
         setOpenDeleteDialog(false);
@@ -395,8 +424,8 @@ const BrokerManagementPage: React.FC = () => {
                                         onChange={handleInputChange}
                                         label="Trading"
                                     >
-                                        <MenuItem value={true}>Enabled</MenuItem>
-                                        <MenuItem value={false}>Disabled</MenuItem>
+                                        <MenuItem value="true">Enabled</MenuItem>
+                                        <MenuItem value="false">Disabled</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -508,8 +537,8 @@ const BrokerManagementPage: React.FC = () => {
                                         onChange={handleInputChange}
                                         label="Trading"
                                     >
-                                        <MenuItem value={true}>Enabled</MenuItem>
-                                        <MenuItem value={false}>Disabled</MenuItem>
+                                        <MenuItem value="true">Enabled</MenuItem>
+                                        <MenuItem value="false">Disabled</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>

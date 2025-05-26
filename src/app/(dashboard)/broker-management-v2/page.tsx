@@ -26,7 +26,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
-import BrokerForm, { Broker } from './components/BrokerForm';
+import BrokerForm, { Broker } from '@/components/admin/BrokerForm';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -95,6 +95,22 @@ export default function BrokerManagement() {
   const handleAddBroker = async (broker: Broker) => {
     setIsSubmitting(true);
     try {
+      // Convert the broker data to match the API format
+      const apiBroker = {
+        username: broker.username,
+        first_name: broker.firstName,
+        last_name: broker.lastName,
+        name: broker.name,
+        parent_id: broker.parentId,
+        brokerage_share: broker.brokerageShare,
+        profit_loss_share: broker.profitLossShare,
+        broker_type: broker.type,
+        account_status: broker.accountStatus,
+        reference_code: broker.referenceCode,
+        mcx_trading_enabled: broker.mcxTrading,
+        equity_trading_enabled: broker.equityTrading
+      };
+
       await fetchBrokers(); // Refresh the list after adding
       setIsAddBrokerOpen(false);
     } catch (error) {
@@ -232,6 +248,10 @@ export default function BrokerManagement() {
           onClose={() => setIsAddBrokerOpen(false)}
           onSubmit={handleAddBroker}
           isSubmitting={isSubmitting}
+          existingBrokers={brokers.map(broker => ({
+            id: broker.id.toString(),
+            name: broker.username
+          }))}
         />
 
         {/* Pagination */}

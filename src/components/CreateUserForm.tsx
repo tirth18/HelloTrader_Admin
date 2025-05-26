@@ -13,9 +13,10 @@ import {
   FormControlLabel,
   Divider,
 } from '@mui/material';
-import { createBroker, generateRefCode } from '../services/brokerService';
 
-interface CreateUserFormValues {
+export interface Broker {
+  id?: string;
+  name: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -27,6 +28,13 @@ interface CreateUserFormValues {
   referenceCode: string;
   mcxTrading: boolean;
   equityTrading: boolean;
+}
+
+interface CreateUserFormProps {
+  onSubmit: (values: Broker) => void;
+  onGenerateReferenceCode: () => string;
+  existingBrokers: Array<{ id: string; name: string }>;
+  isSubmitting?: boolean;
 }
 
 const validationSchema = Yup.object().shape({
@@ -49,11 +57,17 @@ const validationSchema = Yup.object().shape({
   referenceCode: Yup.string().required('Reference code is required'),
 });
 
-const CreateUserForm: React.FC = () => {
-  const initialValues: CreateUserFormValues = {
+const CreateUserForm: React.FC<CreateUserFormProps> = ({ 
+  onSubmit, 
+  onGenerateReferenceCode,
+  existingBrokers,
+  isSubmitting = false
+}) => {
+  const initialValues: Broker = {
     username: '',
     firstName: '',
     lastName: '',
+    name: '',
     parentId: '',
     brokerageShare: 0,
     profitLossShare: 0,
@@ -64,13 +78,9 @@ const CreateUserForm: React.FC = () => {
     equityTrading: false,
   };
 
-  const handleGenerateRefCode = async (setFieldValue: (field: string, value: any) => void) => {
-    try {
-      const code = await generateRefCode();
-      setFieldValue('referenceCode', code);
-    } catch (error) {
-      console.error('Error generating reference code:', error);
-    }
+  const handleGenerateRefCode = (setFieldValue: (field: string, value: any) => void) => {
+    const code = onGenerateReferenceCode();
+    setFieldValue('referenceCode', code);
   };
 
   return (
@@ -81,18 +91,16 @@ const CreateUserForm: React.FC = () => {
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             try {
-              await createBroker(values);
+              await onSubmit(values);
               resetForm();
-              // You can add a success notification here
             } catch (error) {
               console.error('Error creating broker:', error);
-              // You can add an error notification here
             } finally {
               setSubmitting(false);
             }
           }}
         >
-          {({ errors, touched, setFieldValue, isSubmitting }) => (
+          {({ errors, touched, setFieldValue }) => (
             <Form>
               <Box mb={3}>
                 <Typography variant="h6">Basic Information</Typography>
@@ -132,10 +140,19 @@ const CreateUserForm: React.FC = () => {
                       name="parentId"
                       as={TextField}
                       fullWidth
-                      label="Parent ID"
+                      select
+                      label="Parent Broker"
+                      SelectProps={{ native: true }}
                       error={touched.parentId && Boolean(errors.parentId)}
                       helperText={touched.parentId && errors.parentId}
-                    />
+                    >
+                      <option value="">Select Parent Broker</option>
+                      {existingBrokers.map((broker) => (
+                        <option key={broker.id} value={broker.id}>
+                          {broker.name}
+                        </option>
+                      ))}
+                    </Field>
                   </Grid>
                 </Grid>
               </Box>
@@ -268,7 +285,7 @@ const CreateUserForm: React.FC = () => {
                   fullWidth
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Creating...' : 'Create User'}
+                  {isSubmitting ? 'Creating...' : 'Create Broker'}
                 </Button>
               </Box>
             </Form>

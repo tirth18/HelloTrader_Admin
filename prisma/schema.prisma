@@ -12,6 +12,8 @@ model User {
   email         String         @unique
   username      String         @unique
   password_hash String
+  transactionPassword String?
+  transactionPasswordUpdatedAt DateTime?
   is_active     Boolean        @default(true)
   is_superuser  Boolean        @default(false)
   is_verified   Boolean        @default(false)
@@ -28,6 +30,7 @@ model User {
   aml_alerts    AMLAlert[]
   compliance_violations ComplianceViolation[]
   notifications Notification[]
+  passwordResets PasswordReset[]
 }
 
 model Role {
@@ -296,8 +299,23 @@ model ReportSchedule {
 }
 
 model ActionLedger {
+  id        String   @id @default(uuid())
+  message   String
+  type      String
+  details   String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model PasswordReset {
   id          String   @id @default(uuid())
-  message     String
+  userId      String   @unique
+  otp         String
+  resetToken  String   @unique
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  type        String   // 'TRANSACTION_PASSWORD' or 'LOGIN_PASSWORD'
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
 } 
