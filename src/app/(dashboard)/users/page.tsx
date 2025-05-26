@@ -447,7 +447,7 @@ const UsersPage: React.FC = () => {
                     <StyledTableCell>{user.id}</StyledTableCell>
                     <StyledTableCell>
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <ActionButton size="small">
+                        <ActionButton size="small" onClick={() => router.push(`/users/view/${user.id}`)}>
                           <VisibilityIcon fontSize="small" />
                         </ActionButton>
                         <ActionButton size="small" onClick={() => handleOpenEditDialog(user)}>
