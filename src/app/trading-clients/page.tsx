@@ -193,7 +193,12 @@ export default function TradingClientsPage() {
                       <TableCell>
                         <Stack direction="row" spacing={0.5} alignItems="center">
                           <Tooltip title="View">
-                            <IconButton size="small"><VisibilityIcon fontSize="small" /></IconButton>
+                            <IconButton 
+                              size="small" 
+                              onClick={() => router.push(`/trading-clients/view/${client.id}`)}
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </IconButton>
                           </Tooltip>
                           <Tooltip title="Edit">
                             <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
