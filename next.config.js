@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  experimental: {
+    forceSwcTransforms: true, // Force SWC transforms
+    serverComponentsExternalPackages: ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+  },
   images: {
     domains: ['localhost'],
   },
@@ -57,9 +61,6 @@ const nextConfig = {
   },
   // Disable static generation for pages that need client-side features
   output: 'standalone',
-  experimental: {
-    serverComponentsExternalPackages: ['@tanstack/react-query', '@tanstack/react-query-devtools'],
-  },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

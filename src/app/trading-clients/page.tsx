@@ -204,7 +204,12 @@ export default function TradingClientsPage() {
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Settings">
-                            <IconButton size="small"><SettingsIcon fontSize="small" /></IconButton>
+                            <IconButton 
+                              size="small"
+                              onClick={() => router.push(`/trading-clients/${client.id}/settings`)}
+                            >
+                              <SettingsIcon fontSize="small" />
+                            </IconButton>
                           </Tooltip>
                         </Stack>
                       </TableCell>
