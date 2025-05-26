@@ -16,23 +16,16 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
 }));
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
+const Main = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
+  minHeight: '100vh',
+  overflow: 'hidden',
+  transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: 0,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: `${drawerWidth}px`,
-  }),
+  // Let flexbox handle the width automatically based on sidebar state
 }));
 
 export default function AdminLayout({
@@ -73,7 +66,7 @@ export default function AdminLayout({
         </Toolbar>
       </StyledAppBar>
       <Sidebar />
-      <Main open={sidebarOpen}>
+      <Main>
         <Toolbar /> {/* Add spacing for fixed AppBar */}
         {children}
       </Main>
