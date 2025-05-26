@@ -196,7 +196,12 @@ export default function TradingClientsPage() {
                             <IconButton size="small"><VisibilityIcon fontSize="small" /></IconButton>
                           </Tooltip>
                           <Tooltip title="Edit">
-                            <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                            <IconButton 
+                              size="small"
+                              onClick={() => router.push(`/trading-clients/${client.id}/edit`)}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
                           </Tooltip>
                           <Tooltip title="Settings">
                             <IconButton size="small"><SettingsIcon fontSize="small" /></IconButton>
