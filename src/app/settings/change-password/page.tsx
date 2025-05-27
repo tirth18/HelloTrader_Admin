@@ -12,18 +12,21 @@ import {
   Alert,
   Snackbar,
   Fade,
+  CircularProgress,
 } from '@mui/material';
 import { KeyRounded } from '@mui/icons-material';
+import { changeAdminPassword } from '@/services/authService';
 
 const ChangePasswordPage = () => {
   const theme = useTheme();
   const [formData, setFormData] = useState({
-    oldPassword: '',
+    currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmNewPassword: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -36,39 +39,38 @@ const ChangePasswordPage = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setIsLoading(true);
 
     // Validate passwords
-    if (formData.newPassword !== formData.confirmPassword) {
+    if (formData.newPassword !== formData.confirmNewPassword) {
       setError('New passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      setError('New password must be at least 6 characters long');
+      setIsLoading(false);
       return;
     }
 
     try {
-      // TODO: Implement API call to change password
-      const response = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          oldPassword: formData.oldPassword,
-          newPassword: formData.newPassword,
-        }),
+      await changeAdminPassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+        confirmNewPassword: formData.confirmNewPassword,
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to change password');
-      }
 
       setSuccess('Password changed successfully');
       setFormData({
-        oldPassword: '',
+        currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmNewPassword: ''
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,14 +145,15 @@ const ChangePasswordPage = () => {
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TextField
-                  label="Old Password"
+                  label="Current Password"
                   type="password"
-                  name="oldPassword"
-                  value={formData.oldPassword}
+                  name="currentPassword"
+                  value={formData.currentPassword}
                   onChange={handleChange}
                   fullWidth
                   required
                   variant="outlined"
+                  disabled={isLoading}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -170,6 +173,7 @@ const ChangePasswordPage = () => {
                   fullWidth
                   required
                   variant="outlined"
+                  disabled={isLoading}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -183,12 +187,13 @@ const ChangePasswordPage = () => {
                 <TextField
                   label="Repeat New Password"
                   type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
+                  name="confirmNewPassword"
+                  value={formData.confirmNewPassword}
                   onChange={handleChange}
                   fullWidth
                   required
                   variant="outlined"
+                  disabled={isLoading}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -219,10 +224,23 @@ const ChangePasswordPage = () => {
                       background: (theme) => theme.palette.mode === 'dark'
                         ? 'linear-gradient(45deg, #1E88E5 30%, #42A5F5 90%)'
                         : 'linear-gradient(45deg, #1565C0 30%, #1976D2 90%)',
+                    },
+                    '&:disabled': {
+                      background: theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.primary.main, 0.3)
+                        : alpha(theme.palette.primary.main, 0.3),
                     }
                   }}
+                  disabled={isLoading}
                 >
-                  Update Password
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={20} color="inherit" />
+                      <span>Updating...</span>
+                    </Box>
+                  ) : (
+                    'Update Password'
+                  )}
                 </Button>
               </Box>
             </form>

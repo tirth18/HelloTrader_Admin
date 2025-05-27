@@ -18,6 +18,7 @@ import { RootState } from '../../store';
 import { toggleSidebar } from '../../store/slices/uiSlice';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import useTokenPersistence from '@/hooks/useTokenPersistence';
+import { useGlobalScrollbar } from '@/hooks/useScrollbar';
 
 const drawerWidth = 240;
 
@@ -35,7 +36,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   backgroundColor: theme.palette.background.default,
   minHeight: '100vh',
   height: '100vh',
-  overflow: 'hidden',
+  overflow: 'auto',
   display: 'flex',
   flexDirection: 'column',
   [theme.breakpoints.up('sm')]: {
@@ -68,6 +69,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   
   // Use token persistence hook
   useTokenPersistence();
+  
+  // Use global scrollbar hook to ensure scrollbars work properly
+  useGlobalScrollbar();
   
   // Verify token exists on mount
   useEffect(() => {
@@ -106,7 +110,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             maxWidth: 'none !important',
             width: '100%',
             height: 'calc(100vh - 64px)',
-            overflow: 'hidden',
+            overflow: 'auto',
           }}
         >
           <Fade in={true} timeout={500}>
@@ -114,9 +118,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               sx={{ 
                 flex: 1,
                 width: '100%',
-                height: '100%',
+                minHeight: '100%',
                 borderRadius: 0,
-                overflow: 'hidden',
+                overflow: 'visible',
                 bgcolor: 'transparent',
                 boxShadow: 'none',
                 display: 'flex',
