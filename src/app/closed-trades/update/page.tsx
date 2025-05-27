@@ -18,10 +18,13 @@ import {
   IconButton,
   FormHelperText,
   SelectChangeEvent,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { updateTradeByAdmin } from '@/services/trades-service';
 
 export default function UpdateTradesPage() {
   const theme = useTheme();
@@ -35,12 +38,16 @@ export default function UpdateTradesPage() {
   // Form state
   const [scrip, setScrip] = useState('');
   const [userId, setUserId] = useState('');
-  const [lotsUnits, setLotsUnits] = useState('');
+  const [lots, setLots] = useState('');
+  const [units, setUnits] = useState('');
   const [buyRate, setBuyRate] = useState('');
   const [sellRate, setSellRate] = useState('');
   const [transactionPassword, setTransactionPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Sample data for dropdowns
   const scripOptions = ['GCM5', 'SILVERMIC25JUNFUT', 'CRUDEOIL25MAYFUT', 'NIFTY', 'BANKNIFTY', 'Mega'];
@@ -63,7 +70,8 @@ export default function UpdateTradesPage() {
         // Mock data for the trade with ID tradeId
         setScrip('GCM5');
         setUserId('867 : HELO210 (Nakoda Ji )');
-        setLotsUnits('0.500000');
+        setLots('1');
+        setUnits('0');
         setBuyRate('3192.90000000');
         setSellRate('3205.30000000');
         setIsLoading(false);
@@ -79,26 +87,54 @@ export default function UpdateTradesPage() {
     setUserId(event.target.value);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Clear previous messages
+    setError(null);
+    setSuccess(null);
+
     // Validate fields
-    if (!transactionPassword) {
-      alert('Please enter transaction password');
+    if (!buyRate || !sellRate || !lots || !units) {
+      setError('Please fill in all required fields (Buy Rate, Sell Rate, Lots, Units)');
       return;
     }
-    
-    // Save logic would go here
-    console.log('Updating trade:', {
-      tradeId,
-      scrip,
-      userId,
-      lotsUnits,
-      buyRate,
-      sellRate,
-      transactionPassword
-    });
-    
-    // Navigate back to closed trades list
-    router.push('/closed-trades');
+
+    if (!tradeId) {
+      setError('Trade ID is missing');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // Prepare data for API
+      const updateData = {
+        buy_rate: parseFloat(buyRate),
+        sell_rate: parseFloat(sellRate),
+        lots: parseInt(lots),
+        units: parseInt(units),
+      };
+
+      console.log('Updating trade:', {
+        tradeId,
+        updateData,
+      });
+
+      // Call the API
+      const result = await updateTradeByAdmin(tradeId, updateData);
+
+      setSuccess(result.message || 'Trade updated successfully');
+      
+      // Navigate back to closed trades list after a short delay
+      setTimeout(() => {
+        router.push('/closed-trades');
+      }, 2000);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update trade');
+      console.error('Error updating trade:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -139,9 +175,61 @@ export default function UpdateTradesPage() {
           borderRadius: 2,
         }}
       >
-        <Typography variant="h5" component="h1" sx={{ mb: 4, fontWeight: 600 }}>
-          Update Trades
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
+            Update Trades {tradeId && `(ID: ${tradeId})`}
+          </Typography>
+          
+          {/* Debug Buttons - Remove in production */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              onClick={async () => {
+                const { debugLocalStorage } = await import('../../../utils/tokenUtils');
+                debugLocalStorage();
+              }}
+              variant="outlined"
+              size="small"
+              sx={{
+                textTransform: 'none',
+                fontSize: '0.875rem',
+                opacity: 0.7,
+              }}
+            >
+              Debug Token
+            </Button>
+            <Button
+              onClick={async () => {
+                const { setAuthToken } = await import('../../../utils/tokenUtils');
+                const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiI2ODA5ZDcyOTI0YzQ5YTRiNzg1ZTI0NDc6V3JKdXpQb00iLCJpYXQiOjE3NDc4OTM4OTN9.1wLbV7UhKJTZrxFDe4-d4FUgg55mUI0fa5Pp1jY0sCw';
+                setAuthToken(testToken);
+                setSuccess('Test token set successfully!');
+              }}
+              variant="outlined"
+              size="small"
+              sx={{
+                textTransform: 'none',
+                fontSize: '0.875rem',
+                opacity: 0.7,
+              }}
+            >
+              Set Test Token
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Success Alert */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+            {success}
+          </Alert>
+        )}
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
@@ -186,10 +274,22 @@ export default function UpdateTradesPage() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Lots / Units"
-              value={lotsUnits}
-              onChange={(e) => setLotsUnits(e.target.value)}
+              label="Lots"
+              value={lots}
+              onChange={(e) => setLots(e.target.value)}
               variant="outlined"
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Units"
+              value={units}
+              onChange={(e) => setUnits(e.target.value)}
+              variant="outlined"
+              type="number"
             />
           </Grid>
 
@@ -213,36 +313,13 @@ export default function UpdateTradesPage() {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Transaction Password"
-              type={showPassword ? 'text' : 'password'}
-              value={transactionPassword}
-              onChange={(e) => setTransactionPassword(e.target.value)}
-              variant="outlined"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-
           <Grid item xs={12} sx={{ mt: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2 }}>
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
+                disabled={isSaving}
                 sx={{
                   bgcolor: '#4caf50',
                   '&:hover': {
@@ -253,7 +330,14 @@ export default function UpdateTradesPage() {
                   py: 1,
                 }}
               >
-                SAVE
+                {isSaving ? (
+                  <>
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                    SAVING...
+                  </>
+                ) : (
+                  'SAVE'
+                )}
               </Button>
               <Button
                 variant="outlined"

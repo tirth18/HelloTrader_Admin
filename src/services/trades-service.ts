@@ -60,6 +60,72 @@ export interface ClosedTradesResponse {
   message?: string;
 }
 
+export interface UpdateTradeRequest {
+  buy_rate: number;
+  sell_rate: number;
+  lots: number;
+  units: number;
+}
+
+export interface UpdateTradeResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}
+
+export const updateTradeByAdmin = async (
+  tradeId: string,
+  data: UpdateTradeRequest
+): Promise<UpdateTradeResponse> => {
+  try {
+    // Debug localStorage contents
+    debugLocalStorage();
+    
+    // Check if token exists before making the request
+    const token = getAuthToken();
+    
+    if (!token) {
+      throw new Error('Authentication token not found. Please login again.');
+    }
+
+    console.log('Making API request to update trade...');
+    console.log('Trade ID:', tradeId);
+    console.log('Update data:', data);
+
+    const endpoint = `/api/updateTradeByAdmin/${tradeId}`;
+    console.log('Full API endpoint:', `${axiosInstance.defaults.baseURL}${endpoint}`);
+
+    const response = await axiosInstance.post(endpoint, data);
+
+    console.log('API response:', response.data);
+
+    return {
+      success: true,
+      message: response.data.message || 'Trade updated successfully',
+      data: response.data,
+    };
+  } catch (error: any) {
+    console.error('Error updating trade:', error);
+    console.error('Error response:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    
+    // Handle different error scenarios
+    if (error.response?.status === 401) {
+      throw new Error('Unauthorized. Please login again.');
+    } else if (error.response?.status === 400) {
+      throw new Error(error.response.data?.message || 'Invalid request data.');
+    } else if (error.response?.status === 404) {
+      throw new Error('Trade not found.');
+    } else if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      throw new Error(error.message);
+    } else {
+      throw new Error('Failed to update trade. Please try again.');
+    }
+  }
+};
+
 export const getClosedTrades = async (
   params: ClosedTradesRequest = {}
 ): Promise<ClosedTradesResponse> => {

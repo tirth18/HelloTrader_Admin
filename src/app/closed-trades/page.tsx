@@ -356,7 +356,7 @@ export default function ClosedTradesPage() {
                         </IconButton>
                         <IconButton 
                           size="small" 
-                          onClick={() => handleEditClick(trade.id)}
+                          onClick={() => handleEditClick(trade._id)}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
