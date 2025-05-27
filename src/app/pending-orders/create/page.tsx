@@ -478,18 +478,37 @@ export default function CreatePendingOrderPage() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: mode === 'dark' ? '#111827' : '#e5e7eb' }}>
+    <Box sx={{ 
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '120vw',
+      height: '110vh',
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      bgcolor: mode === 'dark' ? '#10182a' : '#f4f6fa',
+      padding: '20px',
+      overflow: 'hidden',
+      boxSizing: 'border-box',
+      zIndex: 1000,
+    }}>
       <Paper
         component="form"
         onSubmit={handleSubmit}
         elevation={3}
         sx={{
-          width: { xs: '95%', sm: '80%', md: '70%' },
-          maxWidth: 1100,
+          width: { xs: '100%', lg: '100%'},
+          maxWidth: 1000,
+          maxHeight: 1000,
           p: { xs: 2, sm: 4 },
           borderRadius: 6,
-          bgcolor: mode === 'dark' ? '#1e2536' : '#fff',
-          boxShadow: mode === 'dark' ? '0 8px 32px 0 #00000040' : undefined,
+          bgcolor: mode === 'dark' ? '#363b44' : '#fff',
+          boxShadow: mode === 'dark' ? '0 8px 32px 0 #00000040' : '0 8px 32px 0 #0001',
+          overflow: 'auto',
+          boxSizing: 'border-box',
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: theme.palette.success.main }}>
@@ -502,10 +521,8 @@ export default function CreatePendingOrderPage() {
         )}
         <Grid container spacing={4}>
           {/* Order Details Section */}
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Script
-            </Typography>
+          <Grid item xs={12} xl={12}>
+          
             <FormControl fullWidth sx={formElementStyles}>
               <InputLabel id="script-label">Select Script</InputLabel>
               <Select
@@ -539,9 +556,7 @@ export default function CreatePendingOrderPage() {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              User ID
-            </Typography>
+         
             <FormControl fullWidth sx={formElementStyles}>
               <InputLabel id="userId-label">Select User</InputLabel>
               <Select
@@ -575,9 +590,7 @@ export default function CreatePendingOrderPage() {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Lots / Units
-            </Typography>
+           
             <TextField
               fullWidth
               label="Lots / Units"
@@ -591,9 +604,7 @@ export default function CreatePendingOrderPage() {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Price
-            </Typography>
+          
             <TextField
               fullWidth
               label="Price"
@@ -607,9 +618,7 @@ export default function CreatePendingOrderPage() {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Order Type
-            </Typography>
+           
             <FormControl fullWidth sx={formElementStyles}>
               <InputLabel id="orderType-label">Select Order Type</InputLabel>
               <Select
@@ -630,9 +639,7 @@ export default function CreatePendingOrderPage() {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Transaction Password
-            </Typography>
+          
             <TextField
               fullWidth
               label="Transaction Password"

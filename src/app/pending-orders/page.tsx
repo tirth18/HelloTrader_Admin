@@ -23,64 +23,64 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useRouter } from 'next/navigation';
 
-const mockData = [
-  {
-    id: '3610475',
-    time: '2025-05-09 12:30:48',
-    commodity: 'DIXON25MAYFUT',
-    userId: '2219 : HELO725',
-    trade: 'Sell',
-    rate: '15201.00000000',
-    lots: 2,
-    condition: 'Below',
-    status: 'Pending',
-  },
-  {
-    id: '3610473',
-    time: '2025-05-09 12:30:41',
-    commodity: 'CRUDEOIL25MAYFUT',
-    userId: '810 : HELO120',
-    trade: 'Sell',
-    rate: '5164.00000000',
-    lots: 10,
-    condition: 'Below',
-    status: 'Pending',
-  },
-  {
-    id: '3610471',
-    time: '2025-05-09 12:30:33',
-    commodity: 'NATURALGAS25MAYFUT',
-    userId: '2113 : HELO628',
-    trade: 'Sell',
-    rate: '311.8000000',
-    lots: 1,
-    condition: 'Below',
-    status: 'Pending',
-  },
-  {
-    id: '3610470',
-    time: '2025-05-09 12:30:33',
-    commodity: 'NIFTY25515240000CE',
-    userId: '56387 : 900069878',
-    trade: 'Sell',
-    rate: '235.0000000',
-    lots: 1,
-    condition: 'Below',
-    status: 'Pending',
-  },
-  {
-    id: '3610466',
-    time: '2025-05-09 12:30:23',
-    commodity: 'IIFL25MAYFUT',
-    userId: '3738 : Helo945',
-    trade: 'Sell',
-    rate: '378.0000000',
-    lots: 1,
-    condition: 'Above',
-    status: 'Pending',
-  },
-];
-
+  const mockData = [
+    {
+      id: '3610475',
+      time: '2025-05-09 12:30:48',
+      commodity: 'DIXON25MAYFUT',
+      userId: '2219 : HELO725',
+      trade: 'Sell',
+      rate: '15201.00000000',
+      lots: 2,
+      condition: 'Below',
+      status: 'Pending',
+    },
+    {
+      id: '3610473',
+      time: '2025-05-09 12:30:41',
+      commodity: 'CRUDEOIL25MAYFUT',
+      userId: '810 : HELO120',
+      trade: 'Sell',
+      rate: '5164.00000000',
+      lots: 10,
+      condition: 'Below',
+      status: 'Pending',
+    },
+    {
+      id: '3610471',
+      time: '2025-05-09 12:30:33',
+      commodity: 'NATURALGAS25MAYFUT',
+      userId: '2113 : HELO628',
+      trade: 'Sell',
+      rate: '311.8000000',
+      lots: 1,
+      condition: 'Below',
+      status: 'Pending',
+    },
+    {
+      id: '3610470',
+      time: '2025-05-09 12:30:33',
+      commodity: 'NIFTY25515240000CE',
+      userId: '56387 : 900069878',
+      trade: 'Sell',
+      rate: '235.0000000',
+      lots: 1,
+      condition: 'Below',
+      status: 'Pending',
+    },
+    {
+      id: '3610466',
+      time: '2025-05-09 12:30:23',
+      commodity: 'IIFL25MAYFUT',
+      userId: '3738 : Helo945',
+      trade: 'Sell',
+      rate: '378.0000000',
+      lots: 1,
+      condition: 'Above',
+      status: 'Pending',
+    },
+  ];
+  
 export default function PendingOrdersPage() {
   const theme = useTheme();
   const { mode } = useThemeContext();
@@ -91,7 +91,7 @@ export default function PendingOrdersPage() {
   const [rows, setRows] = useState(mockData);
   const [displayedRows] = useState(5);
   const [totalRows] = useState(209);
-
+  
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -103,7 +103,7 @@ export default function PendingOrdersPage() {
       const valueA = a[column as keyof typeof a];
       const valueB = b[column as keyof typeof b];
       if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return sortDirection === 'asc'
+        return sortDirection === 'asc' 
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       } else {
@@ -114,16 +114,16 @@ export default function PendingOrdersPage() {
     });
     setRows(sortedData);
   };
-
+  
   const handleCreateOrder = () => {
     router.push('/pending-orders/create');
   };
-
+  
   const darkModeStyles = mode === 'dark' ? {
     bgcolor: alpha('#0f172a', 0.95),
     color: 'white',
   } : {};
-
+  
   const tableHeaderStyle = {
     fontWeight: 'bold',
     color: mode === 'dark' ? '#fff' : '#000',
@@ -133,12 +133,12 @@ export default function PendingOrdersPage() {
     background: mode === 'dark' ? alpha('#1e293b', 0.7) : '#f4f6fb',
     borderBottom: mode === 'dark' ? '1px solid #222b3c' : '1px solid #e0e7ef',
   };
-
+  
   const renderSortIcon = (column: string) => {
     if (sortColumn !== column) return null;
     return sortDirection === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />;
   };
-
+  
   return (
     <Box sx={{ p: { xs: 1, md: 4 }, ...darkModeStyles, minHeight: '100vh' }}>
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 2 }}>
@@ -149,7 +149,7 @@ export default function PendingOrdersPage() {
           variant="contained"
           color="success"
           onClick={handleCreateOrder}
-          sx={{
+          sx={{ 
             px: 3,
             py: 1.2,
             fontWeight: 600,
@@ -230,4 +230,4 @@ export default function PendingOrdersPage() {
       </TableContainer>
     </Box>
   );
-}
+} 

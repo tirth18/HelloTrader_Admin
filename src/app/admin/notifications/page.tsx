@@ -69,7 +69,7 @@ export default function NotificationsPage() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+      minHeight: '100vh',
         bgcolor: theme.palette.mode === 'dark' ? '#0A1929' : '#f4f6fb',
         p: { xs: 1, sm: 2, md: 4 },
         display: 'flex',
@@ -77,7 +77,7 @@ export default function NotificationsPage() {
       }}
     >
       <Box
-        sx={{
+          sx={{ 
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           gap: 3,
@@ -88,7 +88,7 @@ export default function NotificationsPage() {
       >
         {/* Form Box */}
         <Box
-          sx={{
+          sx={{ 
             flex: 1,
             bgcolor: theme.palette.mode === 'dark' ? '#16213e' : '#fff',
             borderRadius: 3,
@@ -112,10 +112,10 @@ export default function NotificationsPage() {
               variant="h5"
               fontWeight={700}
               sx={{ color: theme.palette.text.primary, flex: 1 }}
-            >
-              Notifications
-            </Typography>
-          </Box>
+        >
+          Notifications
+        </Typography>
+      </Box>
           <Typography
             variant="subtitle1"
             fontWeight={500}
@@ -197,7 +197,7 @@ export default function NotificationsPage() {
         {/* Notification List Box */}
         <Box
           sx={{
-            flex: 1,
+          flex: 1,
             bgcolor: theme.palette.mode === 'dark' ? '#16213e' : '#fff',
             borderRadius: 3,
             p: { xs: 2, sm: 3 },
@@ -243,28 +243,28 @@ export default function NotificationsPage() {
                 }}
               >
                 <Box>
-                  <Typography
-                    variant="subtitle2"
+                  <Typography 
+                    variant="subtitle2" 
                     fontWeight={600}
-                    sx={{
+                    sx={{ 
                       color: theme.palette.primary.main,
                       mb: 0.5,
                     }}
                   >
                     {notification.title}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
                       color: theme.palette.text.secondary,
                       mb: 0.5,
                     }}
                   >
                     {notification.message}
                   </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
                       color: theme.palette.text.disabled,
                     }}
                   >
