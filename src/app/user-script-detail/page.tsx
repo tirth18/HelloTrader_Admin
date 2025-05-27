@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, Typography, useTheme, Grid, Paper, Divider, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Menu, MenuItem, Popover, InputBase } from '@mui/material';
+import { Box, Typography, useTheme, Grid, Paper, Divider, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Menu, MenuItem, Popover, InputBase, Fade, Collapse } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -43,6 +43,9 @@ export default function UserScriptDetailPage() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   
+  // State for VIEW DETAILS functionality
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  
   // State for date pickers
   const [fromDate1, setFromDate1] = useState<Date | null>(null);
   const [toDate1, setToDate1] = useState<Date | null>(null);
@@ -59,10 +62,33 @@ export default function UserScriptDetailPage() {
     setAnchorEl(null);
   };
   
+  // Handle VIEW DETAILS button click
+  const handleViewDetails = () => {
+    setShowUserDetails(!showUserDetails);
+  };
+  
   // Get parameters from URL
   const scriptName = searchParams.get('script') || 'Unknown Script';
   const userId = searchParams.get('userId') || '0';
   const userName = searchParams.get('userName') || 'Unknown User';
+  
+  // Static user details data (similar to the image you showed)
+  const userDetailsData = {
+    id: userId,
+    name: userName,
+    mobile: '+91 9876543210',
+    username: 'HELO394',
+    city: 'Mumbai',
+    accountStatus: 'Active',
+    allowOrdersBetweenHighLow: 'Yes',
+    allowFreshEntryOrderAboveHighBelowLow: 'Yes',
+    demoAccount: 'No',
+    autoCloseTradesIfLossesCrossBeyondConfiguredLimit: 'Yes',
+    autoCloseTradesIfInsufficientFundToHoldOvernight: 'Yes',
+    minimumLotSizeRequiredPerSingleTradeOfMCX: '0',
+    maximumLotSizeAllowedPerSingleTradeOfMCX: '5',
+    minimumLotSizeRequiredPerSingleTradeOfEquity: '0',
+  };
   
   // For a real application, this data would be fetched based on scriptName and userId
   const userTradeDetail = {
@@ -388,27 +414,68 @@ export default function UserScriptDetailPage() {
                 PaperProps={{
                   style: {
                     width: '220px',
-                    backgroundColor: 'white',
-                    borderRadius: '4px',
+                    backgroundColor: isDarkMode ? '#131F3E' : 'white',
+                    borderRadius: '8px',
+                    border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #EEF0F6',
+                    boxShadow: isDarkMode 
+                      ? '0 8px 32px 0 rgba(0,0,0,0.4)' 
+                      : '0 2px 8px rgba(0,0,0,0.08)',
                   }
                 }}
               >
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Update</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Reset Account</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Refresh Brokerage</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Duplicate</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Change Password</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose} sx={{ py: 1.5 }}>Delete Account</MenuItem>
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Update</MenuItem>
+                <Divider sx={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EEF0F6' }} />
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Reset Account</MenuItem>
+                <Divider sx={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EEF0F6' }} />
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Refresh Brokerage</MenuItem>
+                <Divider sx={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EEF0F6' }} />
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Duplicate</MenuItem>
+                <Divider sx={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EEF0F6' }} />
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Change Password</MenuItem>
+                <Divider sx={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#EEF0F6' }} />
+                <MenuItem onClick={handleClose} sx={{ 
+                  py: 1.5,
+                  color: isDarkMode ? '#fff' : '#1E2022',
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }}>Delete Account</MenuItem>
               </Menu>
             </Grid>
             <Grid item xs={12} md={9}>
               <Button
                 fullWidth
+                onClick={handleViewDetails}
                 sx={{
                   bgcolor: '#4CAF50',
                   color: 'white',
@@ -430,6 +497,141 @@ export default function UserScriptDetailPage() {
             </Grid>
           </Grid>
         </Box>
+
+        {/* User Details Section with Fade Animation */}
+        <Fade in={showUserDetails} timeout={500}>
+          <Box sx={{ 
+            mb: 4,
+            display: showUserDetails ? 'block' : 'none'
+          }}>
+            
+            
+            <TableContainer component={Paper} sx={{ 
+              bgcolor: isDarkMode ? '#131F3E' : '#FFFFFF',
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: isDarkMode ? 'none' : '0 2px 8px rgba(0,0,0,0.08)',
+              border: isDarkMode ? 'none' : '1px solid #EEF0F6'
+            }}>
+              <Table>
+                <TableBody>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600, width: '50%' }}>ID</TableCell>
+                    <TableCell>{userDetailsData.id}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                    <TableCell>{userDetailsData.name}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Mobile</TableCell>
+                    <TableCell>{userDetailsData.mobile}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Username</TableCell>
+                    <TableCell>{userDetailsData.username}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>City</TableCell>
+                    <TableCell>{userDetailsData.city}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Account Status</TableCell>
+                    <TableCell>{userDetailsData.accountStatus}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Allow Orders between High - Low?</TableCell>
+                    <TableCell>{userDetailsData.allowOrdersBetweenHighLow}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Allow Fresh Entry Order above high & below low?</TableCell>
+                    <TableCell>{userDetailsData.allowFreshEntryOrderAboveHighBelowLow}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>demo account?</TableCell>
+                    <TableCell>{userDetailsData.demoAccount}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Auto-close trades if losses cross beyond the configured limit</TableCell>
+                    <TableCell>{userDetailsData.autoCloseTradesIfLossesCrossBeyondConfiguredLimit}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Auto-close trades if insufficient fund to hold overnight</TableCell>
+                    <TableCell>{userDetailsData.autoCloseTradesIfInsufficientFundToHoldOvernight}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Minimum lot size required per single trade of MCX</TableCell>
+                    <TableCell>{userDetailsData.minimumLotSizeRequiredPerSingleTradeOfMCX}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #EEF0F6',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Maximum lot size allowed per single trade of MCX</TableCell>
+                    <TableCell>{userDetailsData.maximumLotSizeAllowedPerSingleTradeOfMCX}</TableCell>
+                  </TableRow>
+                  <TableRow sx={{ '& td': { 
+                    color: isDarkMode ? '#fff' : '#1E2022', 
+                    borderBottom: 'none',
+                    py: 2
+                  } }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Minimum lot size required per single trade of Equity</TableCell>
+                    <TableCell>{userDetailsData.minimumLotSizeRequiredPerSingleTradeOfEquity}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Fade>
 
         {/* Script Title with underline styling */}
         <Typography 
