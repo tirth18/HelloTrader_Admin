@@ -175,7 +175,7 @@ function ViewTradePageContent() {
             transition: 'all 0.2s ease-in-out',
           }}
         >
-          UPDATE
+          UPDATe
         </Button>
         <Button
           variant="contained"
