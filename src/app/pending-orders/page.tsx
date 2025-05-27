@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  TextField,
   Button,
   Table,
   TableBody,
@@ -16,28 +15,15 @@ import {
   useTheme,
   alpha,
   IconButton,
-  Grid,
-  InputAdornment,
   Chip,
 } from '@mui/material';
 import { useThemeContext } from '@/contexts/ThemeContext';
-import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useRouter } from 'next/navigation';
 
-export default function PendingOrdersPage() {
-  const theme = useTheme();
-  const { mode } = useThemeContext();
-  const router = useRouter();
-  
-  // State for tracking which column to sort by and the sort direction
-  const [sortColumn, setSortColumn] = useState('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  
-  // Mock data based on the reference image
   const mockData = [
     {
       id: '3610475',
@@ -96,33 +82,32 @@ export default function PendingOrdersPage() {
     },
   ];
   
+export default function PendingOrdersPage() {
+  const theme = useTheme();
+  const { mode } = useThemeContext();
+  const router = useRouter();
+
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [rows, setRows] = useState(mockData);
-  const [displayedRows, setDisplayedRows] = useState(50);
-  const [totalRows, setTotalRows] = useState(209);
+  const [displayedRows] = useState(5);
+  const [totalRows] = useState(209);
   
-  // Handle sorting when a column header is clicked
   const handleSort = (column: string) => {
     if (sortColumn === column) {
-      // Toggle sort direction if the same column is clicked
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new sort column and default to ascending
       setSortColumn(column);
       setSortDirection('asc');
     }
-    
-    // Sort the data
     const sortedData = [...rows].sort((a, b) => {
-      // Convert string values to appropriate types for comparison
       const valueA = a[column as keyof typeof a];
       const valueB = b[column as keyof typeof b];
-      
       if (typeof valueA === 'string' && typeof valueB === 'string') {
         return sortDirection === 'asc' 
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       } else {
-        // For number comparison
         const numA = Number(valueA);
         const numB = Number(valueB);
         return sortDirection === 'asc' ? numA - numB : numB - numA;
@@ -143,20 +128,21 @@ export default function PendingOrdersPage() {
     router.push('/pending-orders/create');
   };
   
-  // Dark mode styles
   const darkModeStyles = mode === 'dark' ? {
     bgcolor: alpha('#0f172a', 0.95),
     color: 'white',
   } : {};
   
-  // Table header styles
   const tableHeaderStyle = {
     fontWeight: 'bold',
     color: mode === 'dark' ? '#fff' : '#000',
     cursor: 'pointer',
+    fontSize: '1rem',
+    letterSpacing: 0.2,
+    background: mode === 'dark' ? alpha('#1e293b', 0.7) : '#f4f6fb',
+    borderBottom: mode === 'dark' ? '1px solid #222b3c' : '1px solid #e0e7ef',
   };
   
-  // Sort icon to display next to column header
   const renderSortIcon = (column: string) => {
     if (sortColumn !== column) return null;
     return sortDirection === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />;

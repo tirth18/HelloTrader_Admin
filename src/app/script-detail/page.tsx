@@ -1,9 +1,6 @@
 'use client';
 
-import React, { Suspense } from 'react';
-
-// Force this page to be dynamically rendered
-export const dynamic = 'force-dynamic';
+import React from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, useTheme } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -93,7 +90,7 @@ const usersData: ScriptUser[] = [
   }
 ];
 
-function ScriptDetailPageContent() {
+export default function ScriptDetailPage() {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   const searchParams = useSearchParams();
@@ -376,13 +373,5 @@ function ScriptDetailPageContent() {
         </Table>
       </TableContainer>
     </Box>
-  );
-}
-
-export default function ScriptDetailPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ScriptDetailPageContent />
-    </Suspense>
   );
 } 

@@ -28,16 +28,6 @@ export function QueryProvider({ children }: QueryProviderProps) {
       })
   );
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       {children}

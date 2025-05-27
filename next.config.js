@@ -38,20 +38,33 @@ const nextConfig = {
       },
     ];
   },
+  // Disable WebSocket connections by adding these headers
+  async headers() {
+    return [
+      {
+        source: '/api/ws/:path*',
+        headers: [
+          { key: 'Connection', value: 'close' },
+        ],
+      },
+    ];
+  },
+  // Configure page generation
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // Enable static optimization where possible
+  poweredByHeader: false,
   // Configure build output
+  distDir: '.next',
+  // Configure webpack
+  webpack: (config, { dev, isServer }) => {
+    // Add any webpack customizations here
+    return config;
+  },
+  // Disable static generation for pages that need client-side features
   output: 'standalone',
-  // Skip failed page errors for production build
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Handle static generation errors gracefully
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
+  experimental: {
+    serverComponentsExternalPackages: ['@tanstack/react-query', '@tanstack/react-query-devtools'],
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig; 

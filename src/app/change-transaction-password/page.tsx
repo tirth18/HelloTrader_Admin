@@ -71,23 +71,13 @@ export default function ChangeTransactionPasswordPage() {
     try {
       setApiError(null);
       
-      // Call the password change API
-      const response = await fetch('/api/change-transaction-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          oldPassword: values.oldPassword,
-          newPassword: values.newPassword,
-        }),
+      const { changeTransactionPassword } = await import('../../services/auth-service');
+      
+      const result = await changeTransactionPassword({
+        currentPassword: values.oldPassword,
+        newPassword: values.newPassword,
+        confirmNewPassword: values.repeatPassword,
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update transaction password');
-      }
       
       // Show success message
       setShowSuccessToast(true);

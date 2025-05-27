@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
-import { Box, Typography, Paper, Grid, TextField, InputAdornment, Checkbox, FormControlLabel, Select, MenuItem, InputLabel, FormControl, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Paper, Grid, TextField, InputAdornment, Checkbox, FormControlLabel, Select, MenuItem, InputLabel, FormControl, Button, Snackbar, Alert, AlertColor } from '@mui/material';
 import axios from 'axios';
 
 export default function CreateTradingClientPage() {
@@ -12,7 +12,7 @@ export default function CreateTradingClientPage() {
   const router = useRouter();
   const secondaryTextColor = theme.palette.text.secondary;
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'warning' | 'info' }>({ open: false, message: '', severity: 'success' });
+  const [alert, setAlert] = useState({ open: false, message: '', severity: 'success' });
   
   // Form state
   const [formData, setFormData] = useState({
@@ -1737,9 +1737,8 @@ export default function CreateTradingClientPage() {
           </form>
         </Paper>
       </Box>
-
       <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert}>
-        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseAlert} severity={alert.severity as AlertColor} sx={{ width: '100%' }}>
           {alert.message}
         </Alert>
       </Snackbar>

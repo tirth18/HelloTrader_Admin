@@ -34,7 +34,7 @@ import {
   Add as AddIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Line, Bar } from 'react-chartjs-2';
@@ -71,32 +71,32 @@ const ReportingPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: reports, isLoading: reportsLoading } = useQuery({
-    queryKey: ['reports'],
-    queryFn: async () => {
+  const { data: reports, isLoading: reportsLoading } = useQuery(
+    'reports',
+    async () => {
       const response = await fetch('/api/reports');
       return response.json();
     }
-  });
+  );
 
-  const { data: tradingMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ['tradingMetrics'],
-    queryFn: async () => {
+  const { data: tradingMetrics, isLoading: metricsLoading } = useQuery(
+    'tradingMetrics',
+    async () => {
       const response = await fetch('/api/reports/metrics');
       return response.json();
     }
-  });
+  );
 
-  const { data: volumeData, isLoading: volumeLoading } = useQuery({
-    queryKey: ['volumeData'],
-    queryFn: async () => {
+  const { data: volumeData, isLoading: volumeLoading } = useQuery(
+    'volumeData',
+    async () => {
       const response = await fetch('/api/reports/volume');
       return response.json();
     }
-  });
+  );
 
-  const createReportMutation = useMutation({
-    mutationFn: async (reportData: any) => {
+  const createReportMutation = useMutation(
+    async (reportData: any) => {
       const response = await fetch('/api/reports', {
         method: 'POST',
         headers: {
@@ -106,11 +106,13 @@ const ReportingPage: React.FC = () => {
       });
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] });
-      setOpen(false);
-    },
-  });
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('reports');
+        setOpen(false);
+      },
+    }
+  );
 
   const formik = useFormik({
     initialValues: {

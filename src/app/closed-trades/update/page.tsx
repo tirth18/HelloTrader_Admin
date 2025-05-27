@@ -1,9 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-
-// Force this page to be dynamically rendered
-export const dynamic = 'force-dynamic';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -21,12 +18,15 @@ import {
   IconButton,
   FormHelperText,
   SelectChangeEvent,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { updateTradeByAdmin } from '@/services/trades-service';
 
-function UpdateTradesPageContent() {
+export default function UpdateTradesPage() {
   const theme = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,12 +38,16 @@ function UpdateTradesPageContent() {
   // Form state
   const [scrip, setScrip] = useState('');
   const [userId, setUserId] = useState('');
-  const [lotsUnits, setLotsUnits] = useState('');
+  const [lots, setLots] = useState('');
+  const [units, setUnits] = useState('');
   const [buyRate, setBuyRate] = useState('');
   const [sellRate, setSellRate] = useState('');
   const [transactionPassword, setTransactionPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Sample data for dropdowns
   const scripOptions = ['GCM5', 'SILVERMIC25JUNFUT', 'CRUDEOIL25MAYFUT', 'NIFTY', 'BANKNIFTY', 'Mega'];
@@ -66,7 +70,8 @@ function UpdateTradesPageContent() {
         // Mock data for the trade with ID tradeId
         setScrip('GCM5');
         setUserId('867 : HELO210 (Nakoda Ji )');
-        setLotsUnits('0.500000');
+        setLots('1');
+        setUnits('0');
         setBuyRate('3192.90000000');
         setSellRate('3205.30000000');
         setIsLoading(false);
@@ -82,26 +87,54 @@ function UpdateTradesPageContent() {
     setUserId(event.target.value);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Clear previous messages
+    setError(null);
+    setSuccess(null);
+
     // Validate fields
-    if (!transactionPassword) {
-      alert('Please enter transaction password');
+    if (!buyRate || !sellRate || !lots || !units) {
+      setError('Please fill in all required fields (Buy Rate, Sell Rate, Lots, Units)');
       return;
     }
-    
-    // Save logic would go here
-    console.log('Updating trade:', {
-      tradeId,
-      scrip,
-      userId,
-      lotsUnits,
-      buyRate,
-      sellRate,
-      transactionPassword
-    });
-    
-    // Navigate back to closed trades list
-    router.push('/closed-trades');
+
+    if (!tradeId) {
+      setError('Trade ID is missing');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // Prepare data for API
+      const updateData = {
+        buy_rate: parseFloat(buyRate),
+        sell_rate: parseFloat(sellRate),
+        lots: parseInt(lots),
+        units: parseInt(units),
+      };
+
+      console.log('Updating trade:', {
+        tradeId,
+        updateData,
+      });
+
+      // Call the API
+      const result = await updateTradeByAdmin(tradeId, updateData);
+
+      setSuccess(result.message || 'Trade updated successfully');
+      
+      // Navigate back to closed trades list after a short delay
+      setTimeout(() => {
+        router.push('/closed-trades');
+      }, 2000);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update trade');
+      console.error('Error updating trade:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -189,10 +222,22 @@ function UpdateTradesPageContent() {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Lots / Units"
-              value={lotsUnits}
-              onChange={(e) => setLotsUnits(e.target.value)}
+              label="Lots"
+              value={lots}
+              onChange={(e) => setLots(e.target.value)}
               variant="outlined"
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Units"
+              value={units}
+              onChange={(e) => setUnits(e.target.value)}
+              variant="outlined"
+              type="number"
             />
           </Grid>
 
@@ -256,7 +301,14 @@ function UpdateTradesPageContent() {
                   py: 1,
                 }}
               >
-                SAVE
+                {isSaving ? (
+                  <>
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                    SAVING...
+                  </>
+                ) : (
+                  'SAVE'
+                )}
               </Button>
               <Button
                 variant="outlined"
@@ -274,13 +326,5 @@ function UpdateTradesPageContent() {
         </Grid>
       </Paper>
     </Box>
-  );
-}
-
-export default function UpdateTradesPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UpdateTradesPageContent />
-    </Suspense>
   );
 } 

@@ -9,6 +9,8 @@ import {
   Typography,
   Button,
   useTheme,
+  alpha,
+  Container,
 } from '@mui/material';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,12 +37,11 @@ interface TradeDetail {
   soldAt: string;
 }
 
-function ViewTradePageContent() {
-  const theme = useTheme();
+export default function ViewTradePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mode } = useThemeContext();
-  
+
   // Get trade ID from URL if available
   const tradeId = searchParams.get('id');
   
@@ -51,30 +52,33 @@ function ViewTradePageContent() {
   // Fetch trade data when component mounts
   useEffect(() => {
     if (tradeId) {
+      // In a real application, we would fetch the data from an API
+      // For now, let's mock the data based on the image
       setIsLoading(true);
       
-      // Simulate API call with data matching the reference images
+      // Simulate API call
       setTimeout(() => {
+        // Mock data for the trade with ID tradeId
         setTradeDetails({
-          id: '3737073',
-          scrip: 'BANKNIFTY25MAY55500PE',
-          segment: 'NSE',
-          userId: '1943',
-          buyRate: '667.1',
-          sellRate: '658.85',
-          buyIp: '27.61.173.202',
-          sellIp: '27.61.173.202',
-          lotsUnits: '1 / 30',
-          profitLoss: '-247.5',
-          buyTurnover: '20013',
-          sellTurnover: '19765.5',
-          brokerage: '10',
+          id: '3676462',
+          scrip: 'GCM5',
+          segment: 'COMEX',
+          userId: '867',
+          buyRate: '3192.9',
+          sellRate: '3205.3',
+          buyIp: '106.193.176.222',
+          sellIp: '127.0.0.1',
+          lotsUnits: '0.5 / 50',
+          profitLoss: '49600',
+          buyTurnover: '12771600',
+          sellTurnover: '12821200',
+          brokerage: '300',
           buyType: 'Market',
           sellType: 'Market',
           buyOrderId: '(not set)',
           sellOrderId: '(not set)',
-          boughtAt: '2025-05-27 09:49:15',
-          soldAt: '2025-05-27 09:51:11',
+          boughtAt: '2025-05-16 23:34:09',
+          soldAt: '2025-05-17 03:04:20',
         });
         setIsLoading(false);
       }, 500);
@@ -86,6 +90,7 @@ function ViewTradePageContent() {
   };
 
   const handleDelete = () => {
+    // Handle delete logic
     console.log('Delete trade:', tradeId);
   };
 
@@ -994,7 +999,15 @@ function ViewTradePageContent() {
   );
 }
 
-export default function ViewTradePage() {
+function ViewTradePageContent() {
+  return (
+    <Box>
+      {/* Content from above */}
+    </Box>
+  );
+}
+
+async function ViewTradePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ViewTradePageContent />

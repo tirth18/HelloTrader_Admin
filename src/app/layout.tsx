@@ -11,9 +11,6 @@ import { QueryProvider } from '../providers/QueryProvider';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '../theme';
 
-// Force this layout to be dynamically rendered
-export const dynamic = 'force-dynamic';
-
 export default function RootLayout({
   children,
 }: {

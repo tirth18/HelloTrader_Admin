@@ -3,9 +3,6 @@
 import { useEffect } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
-// Force this page to be dynamically rendered
-export const dynamic = 'force-dynamic';
-
 export default function Home() {
   useEffect(() => {
     // Check if user is authenticated

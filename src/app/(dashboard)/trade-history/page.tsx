@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from 'react-query';
 import { format } from 'date-fns';
 import { Download as DownloadIcon } from '@mui/icons-material';
 
@@ -67,25 +67,29 @@ const TradeHistoryPage: React.FC = () => {
   );
   const [endDate, setEndDate] = useState<Date | null>(new Date());
 
-  const { data: trades, isLoading } = useQuery({
-    queryKey: ['trades', startDate?.toISOString(), endDate?.toISOString()],
-    queryFn: async () => {
+  const { data: trades, isLoading } = useQuery(
+    ['trades', startDate?.toISOString(), endDate?.toISOString()],
+    async () => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 500));
       return mockTrades;
     },
-    enabled: !!startDate && !!endDate,
-  });
+    {
+      enabled: !!startDate && !!endDate,
+    }
+  );
 
-  const { data: tradingMetrics } = useQuery({
-    queryKey: ['tradingMetrics', startDate?.toISOString(), endDate?.toISOString()],
-    queryFn: async () => {
+  const { data: tradingMetrics } = useQuery(
+    ['tradingMetrics', startDate?.toISOString(), endDate?.toISOString()],
+    async () => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 300));
       return mockTradingMetrics;
     },
-    enabled: !!startDate && !!endDate,
-  });
+    {
+      enabled: !!startDate && !!endDate,
+    }
+  );
 
   const handleExport = () => {
     alert('CSV Export functionality would be implemented here');
