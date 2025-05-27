@@ -1,5 +1,5 @@
 'use client';
-
+ 
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -9,7 +9,7 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-
+ 
 // Static sample order data to display for every order
 const order = {
   id: '3733510',
@@ -25,11 +25,11 @@ const order = {
   cancelledOn: '(not set)',
   ipAddress: '223.184.191.181',
 };
-
+ 
 export default function PendingOrderDetailPage() {
   const theme = useTheme();
   const router = useRouter();
-
+ 
   // For table rows
   const rows = [
     { label: 'ID', value: order.id },
@@ -45,7 +45,7 @@ export default function PendingOrderDetailPage() {
     { label: 'Cancelled On', value: order.cancelledOn },
     { label: 'Ip Address', value: order.ipAddress },
   ];
-
+ 
   return (
     <Box
       sx={{
@@ -122,4 +122,4 @@ export default function PendingOrderDetailPage() {
       </Box>
     </Box>
   );
-} 
+}

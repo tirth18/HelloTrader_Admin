@@ -1,5 +1,5 @@
 'use client';
-
+ 
 import React, { useState } from 'react';
 import {
   Box,
@@ -21,9 +21,8 @@ import { useThemeContext } from '@/contexts/ThemeContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useRouter } from 'next/navigation';
-
+ 
   const mockData = [
     {
       id: '3610475',
@@ -86,7 +85,7 @@ export default function PendingOrdersPage() {
   const theme = useTheme();
   const { mode } = useThemeContext();
   const router = useRouter();
-
+ 
   const [sortColumn, setSortColumn] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [rows, setRows] = useState(mockData);
@@ -104,7 +103,7 @@ export default function PendingOrdersPage() {
       const valueA = a[column as keyof typeof a];
       const valueB = b[column as keyof typeof b];
       if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return sortDirection === 'asc' 
+        return sortDirection === 'asc'
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       } else {
@@ -113,17 +112,9 @@ export default function PendingOrdersPage() {
         return sortDirection === 'asc' ? numA - numB : numB - numA;
       }
     });
-    
     setRows(sortedData);
   };
   
-  // Function to handle order completion
-  const handleComplete = (id: string) => {
-    console.log(`Completing order with ID: ${id}`);
-    // In a real application, you would call an API to complete the order
-  };
-  
-  // Function to handle navigation to create page
   const handleCreateOrder = () => {
     router.push('/pending-orders/create');
   };
@@ -149,85 +140,62 @@ export default function PendingOrdersPage() {
   };
   
   return (
-    <Box sx={{ p: 3, ...darkModeStyles }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+    <Box sx={{ p: { xs: 1, md: 4 }, ...darkModeStyles, minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 2 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: mode === 'dark' ? '#fff' : '#1e293b' }}>
           Pending Orders
         </Typography>
-        
         <Button
           variant="contained"
-          color="primary"
+          color="success"
           onClick={handleCreateOrder}
-          sx={{ 
-            bgcolor: '#4caf50',
-            '&:hover': {
-              bgcolor: '#388e3c',
-            },
+          sx={{
             px: 3,
-            py: 1,
+            py: 1.2,
+            fontWeight: 600,
+            fontSize: 16,
+            borderRadius: 2,
+            boxShadow: 'none',
+            textTransform: 'none',
           }}
         >
-          CREATE PENDING ORDERS
+          Create Pending Order
         </Button>
       </Box>
-      
-      <Typography variant="body1" sx={{ mb: 3 }}>
+      <Typography variant="body2" sx={{ mb: 2, color: mode === 'dark' ? '#b0b8c1' : '#4b5563' }}>
         Showing {displayedRows} of {totalRows} items.
       </Typography>
-      
-      <TableContainer component={Paper} sx={{ mb: 4, ...darkModeStyles }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 3, ...darkModeStyles }}>
         <Table size="medium">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                #
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }} onClick={() => handleSort('id')}>
+              <TableCell sx={tableHeaderStyle}>#</TableCell>
+              <TableCell sx={tableHeaderStyle} onClick={() => handleSort('id')}>
                 ID {renderSortIcon('id')}
               </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }} onClick={() => handleSort('time')}>
-                TIME {renderSortIcon('time')}
+              <TableCell sx={tableHeaderStyle} onClick={() => handleSort('time')}>
+                Time {renderSortIcon('time')}
               </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Commodity
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                User ID
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Trade
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Rate
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Lots
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Condition
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                Status
-              </TableCell>
-              <TableCell sx={{ ...tableHeaderStyle }}>
-                
-              </TableCell>
+              <TableCell sx={tableHeaderStyle}>Commodity</TableCell>
+              <TableCell sx={tableHeaderStyle}>User ID</TableCell>
+              <TableCell sx={tableHeaderStyle}>Trade</TableCell>
+              <TableCell sx={tableHeaderStyle}>Rate</TableCell>
+              <TableCell sx={tableHeaderStyle}>Lots</TableCell>
+              <TableCell sx={tableHeaderStyle}>Condition</TableCell>
+              <TableCell sx={tableHeaderStyle}>Status</TableCell>
+              <TableCell sx={tableHeaderStyle}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map((row, index) => (
-              <TableRow key={row.id} sx={{ '&:hover': { bgcolor: mode === 'dark' ? alpha('#fff', 0.05) : alpha('#000', 0.05) } }}>
+              <TableRow key={row.id} sx={{ '&:hover': { bgcolor: mode === 'dark' ? alpha('#fff', 0.03) : alpha('#000', 0.03) } }}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton size="small">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton size="small" onClick={() => router.push(`/pending-orders/view/${row.id}`)}>
                       <VisibilityIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                    {row.id}
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{row.id}</Typography>
                   </Box>
                 </TableCell>
                 <TableCell>{row.time}</TableCell>
@@ -242,6 +210,7 @@ export default function PendingOrdersPage() {
                     label={row.status}
                     color={row.status === 'Pending' ? 'primary' : 'success'}
                     size="small"
+                    sx={{ fontWeight: 600 }}
                   />
                 </TableCell>
                 <TableCell>
@@ -249,13 +218,9 @@ export default function PendingOrdersPage() {
                     variant="contained"
                     color="success"
                     size="small"
-                    onClick={() => handleComplete(row.id)}
-                    sx={{ 
-                      fontSize: '0.7rem',
-                      py: 0.5,
-                    }}
+                    sx={{ fontSize: '0.8rem', py: 0.5, borderRadius: 2, fontWeight: 600 }}
                   >
-                    COMPLETE
+                    Complete
                   </Button>
                 </TableCell>
               </TableRow>
@@ -265,4 +230,4 @@ export default function PendingOrdersPage() {
       </TableContainer>
     </Box>
   );
-} 
+}
