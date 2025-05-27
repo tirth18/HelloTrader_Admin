@@ -22,6 +22,41 @@ import {
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
+// Define the interface for form values
+interface FormValues {
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  transactionPassword: string;
+  refCode: string;
+  type: string;
+  accountStatus: boolean;
+  notifyLossPercent: string;
+  autoCloseLossPercent: string;
+  brokerageShare: string;
+  profitLossShare: string;
+  subBrokersLimit: string;
+  tradingClientsLimit: string;
+  subBrokersActions: string;
+  payinAllowed: string;
+  payoutAllowed: string;
+  createClientsAllowed: string;
+  clientTasksAllowed: string;
+  tradeActivityAllowed: string;
+  notificationsAllowed: string;
+  mcxTrading: boolean;
+  mcxBrokerage: string;
+  mcxBrokerageType: string;
+  intradayExposureMcx: string;
+  exposureMcxType: string;
+  holdingExposureMcx: string;
+  equityTrading: boolean;
+  intradayExposureEquity: string;
+  equityBrokeragePerCrore: string;
+  holdingExposureEquity: string;
+}
+
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required"),
   lastName: Yup.string().required("Last name is required"),
@@ -33,7 +68,7 @@ const validationSchema = Yup.object().shape({
   type: Yup.string().required("Type is required"),
 });
 
-const initialValues = {
+const initialValues: FormValues = {
   firstName: "",
   lastName: "",
   username: "",
@@ -112,7 +147,7 @@ const CreateUserPage = () => {
             >
               Create User
             </Typography>
-            <Formik
+            <Formik<FormValues>
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
