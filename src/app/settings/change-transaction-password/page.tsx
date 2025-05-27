@@ -44,24 +44,15 @@ const ChangeTransactionPasswordPage = () => {
     }
 
     try {
-      // TODO: Implement API call to change transaction password
-      const response = await fetch('/api/auth/change-transaction-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          oldPassword: formData.oldPassword,
-          newPassword: formData.newPassword,
-        }),
+      const { changeTransactionPassword } = await import('../../../services/auth-service');
+      
+      const result = await changeTransactionPassword({
+        currentPassword: formData.oldPassword,
+        newPassword: formData.newPassword,
+        confirmNewPassword: formData.confirmPassword,
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to change transaction password');
-      }
-
-      setSuccess('Transaction password changed successfully');
+      setSuccess(result.message || 'Transaction password changed successfully');
       setFormData({
         oldPassword: '',
         newPassword: '',
@@ -70,6 +61,19 @@ const ChangeTransactionPasswordPage = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to change transaction password');
     }
+  };
+
+  const handleDebugToken = async () => {
+    const { debugLocalStorage } = await import('../../../utils/tokenUtils');
+    debugLocalStorage();
+  };
+
+  const handleSetTestToken = async () => {
+    const { setAuthToken } = await import('../../../utils/tokenUtils');
+    // Set the token from your curl command for testing
+    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiI2ODA5ZDcyOTI0YzQ5YTRiNzg1ZTI0NDc6VVhBTERBNnkiLCJpYXQiOjE3NDgyMzMzOTZ9.TQ1iXK65uyE9aoG-Y3ZCIbgak3tj21px47jDEGdEYJ0';
+    setAuthToken(testToken);
+    setSuccess('Test token set successfully! Check console for details.');
   };
 
   return (
@@ -224,6 +228,34 @@ const ChangeTransactionPasswordPage = () => {
                 >
                   Update Password
                 </Button>
+
+                {/* Debug Buttons - Remove in production */}
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <Button
+                    onClick={handleDebugToken}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      opacity: 0.7,
+                    }}
+                  >
+                    Debug Token
+                  </Button>
+                  <Button
+                    onClick={handleSetTestToken}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      opacity: 0.7,
+                    }}
+                  >
+                    Set Test Token
+                  </Button>
+                </Box>
               </Box>
             </form>
           </Paper>

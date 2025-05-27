@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "@/config";
+import { getAuthToken, removeAuthToken } from "@/utils/tokenUtils";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -12,9 +13,13 @@ const axiosInstance = axios.create({
 // Add a request interceptor to include the auth token
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
+    
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = token;
+      console.log('Token added to request:', token.substring(0, 20) + '...');
+    } else {
+      console.warn('No token found in localStorage');
     }
     return config;
   },
@@ -29,7 +34,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access (e.g., redirect to login)
-      localStorage.removeItem("token");
+      removeAuthToken();
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
