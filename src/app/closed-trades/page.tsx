@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -22,12 +22,17 @@ import {
   FormControl,
   InputLabel,
   IconButton,
+  CircularProgress,
+  Alert,
+  Pagination,
 } from '@mui/material';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useRouter } from 'next/navigation';
+import { getClosedTrades, ClosedTrade, ClosedTradesRequest } from '@/services/trades-service';
 
 export default function ClosedTradesPage() {
   const theme = useTheme();
@@ -39,109 +44,121 @@ export default function ClosedTradesPage() {
   const [scrip, setScrip] = useState('');
   const [username, setUsername] = useState('');
   
-  // Mock data based on the image
-  const mockRows = [
-    {
-      id: '3610326',
-      scrip: 'GCM5',
-      segment: 'COMEX',
-      userId: '2606',
-      username: 'Sheetal Singh',
-      buyRate: '3327.80000000',
-      sellRate: '3328.00000000',
-      lotsUnits: '0.1 / 10',
-      profit: '160',
-    },
-    {
-      id: '3610318',
-      scrip: 'SILVERMIC25JUNFUT',
-      segment: 'MCX',
-      userId: '1753',
-      username: 'Dilip T S',
-      buyRate: '96328.00000000',
-      sellRate: '96365.00000000',
-      lotsUnits: '1 / 1',
-      profit: '37',
-    },
-    {
-      id: '3610315',
-      scrip: 'CRUDEOIL25MAYFUT',
-      segment: 'MCX',
-      userId: '329193',
-      username: 'Manipal',
-      buyRate: '5165.00000000',
-      sellRate: '5128.00000000',
-      lotsUnits: '0.2 / 20',
-      profit: '-740',
-    },
-    {
-      id: '3610314',
-      scrip: 'VOLTAS25MAYFUT',
-      segment: 'NSE',
-      userId: '74539',
-      username: 'Abhishek',
-      buyRate: '1204.20000000',
-      sellRate: '1241.00000000',
-      lotsUnits: '5 / 1500',
-      profit: '55200',
-    },
-    {
-      id: '3610305',
-      scrip: 'WIPRO25MAY247.5CE',
-      segment: 'NSE',
-      userId: '762',
-      username: 'Madam',
-      buyRate: '4.40000000',
-      sellRate: '4.40000000',
-      lotsUnits: '15 / 45000',
-      profit: '0',
-    },
-    {
-      id: '3610297',
-      scrip: 'VOLTAS25MAYFUT',
-      segment: 'NSE',
-      userId: '4325',
-      username: 'Lalit',
-      buyRate: '1211.90000000',
-      sellRate: '1234.70000000',
-      lotsUnits: '0.167 / 50',
-      profit: '1140',
-    },
-    {
-      id: '3610295',
-      scrip: 'TATACHEM25MAYFUT',
-      segment: 'NSE',
-      userId: '5046',
-      username: 'K S Panduranga',
-      buyRate: '813.80000000',
-      sellRate: '816.20000000',
-      lotsUnits: '0.091 / 50',
-      profit: '120',
-    },
-    {
-      id: '3610294',
-      scrip: 'TATACHEM25MAYFUT',
-      segment: 'NSE',
-      userId: '5046',
-      username: 'K S Panduranga',
-      buyRate: '814.60000000',
-      sellRate: '816.20000000',
-      lotsUnits: '0.018 / 10',
-      profit: '16',
-    },
-  ];
+  // API state
+  const [trades, setTrades] = useState<ClosedTrade[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   
-  const [rows, setRows] = useState(mockRows);
+  // Fetch trades data
+  const fetchTrades = async (searchParams?: ClosedTradesRequest) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params: ClosedTradesRequest = {
+        page,
+        limit,
+        ...searchParams,
+      };
+      
+      const response = await getClosedTrades(params);
+      
+      setTrades(response.data);
+      setTotal(response.total);
+      setTotalPages(response.totalPages);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch closed trades');
+      console.error('Error fetching trades:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Load data on component mount and when page changes
+  useEffect(() => {
+    fetchTrades();
+  }, [page]);
+
+  // Initial load effect
+  useEffect(() => {
+    console.log('Closed Trades page loaded');
+    // Check if token exists on page load
+    const checkToken = async () => {
+      const { getAuthToken } = await import('../../utils/tokenUtils');
+      const token = getAuthToken();
+      if (!token) {
+        setError('No authentication token found. Please login or set a test token.');
+      }
+    };
+    checkToken();
+  }, []);
   
   const handleSearch = () => {
     console.log('Search clicked');
-    // In a real application, we would filter the data based on the form values
+    setPage(1); // Reset to first page when searching
+    fetchTrades({
+      timeDiff: timeDiff || undefined,
+      scrip: scrip || undefined,
+      username: username || undefined,
+    });
   };
   
   const handleReset = () => {
     setTimeDiff('');
     setScrip('');
     setUsername('');
+    setPage(1);
+    fetchTrades(); // Fetch without filters
+  };
+  
+  const handleRefresh = () => {
+    fetchTrades({
+      timeDiff: timeDiff || undefined,
+      scrip: scrip || undefined,
+      username: username || undefined,
+    });
+  };
+  
+  const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleDebugToken = async () => {
+    const { debugLocalStorage } = await import('../../utils/tokenUtils');
+    debugLocalStorage();
+  };
+
+  const handleSetTestToken = async () => {
+    const { setAuthToken } = await import('../../utils/tokenUtils');
+    // Set the token from your curl command for testing
+    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiI2ODA5ZDcyOTI0YzQ5YTRiNzg1ZTI0NDc6VVhBTERBNnkiLCJpYXQiOjE3NDgyMzMzOTZ9.TQ1iXK65uyE9aoG-Y3ZCIbgak3tj21px47jDEGdEYJ0';
+    setAuthToken(testToken);
+    setError(null); // Clear any existing errors
+    // Refresh the data after setting token
+    handleRefresh();
+  };
+
+  const handleTestAPI = async () => {
+    try {
+      setError(null);
+      console.log('Testing API directly...');
+      
+      // Import axios instance to test the API
+      const axiosInstance = (await import('../../services/axiosInstance')).default;
+      
+      const response = await axiosInstance.get('/api/getAllTradeByStatus/closed?page=1&limit=10');
+      console.log('Direct API test response:', response.data);
+      
+      setError(null);
+      alert('API test successful! Check console for response data.');
+    } catch (err: any) {
+      console.error('Direct API test failed:', err);
+      setError(`API test failed: ${err.message}`);
+    }
   };
   
   // Dark mode styles
@@ -168,9 +185,51 @@ export default function ClosedTradesPage() {
   
   return (
     <Box sx={{ p: 3, ...darkModeStyles }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 600 }}>
-        Closed Trades
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+          Closed Trades
+        </Typography>
+        
+        {/* Debug Buttons - Remove in production */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button
+            onClick={handleDebugToken}
+            variant="outlined"
+            size="small"
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              opacity: 0.7,
+            }}
+          >
+            Debug Token
+          </Button>
+          <Button
+            onClick={handleSetTestToken}
+            variant="outlined"
+            size="small"
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              opacity: 0.7,
+            }}
+          >
+            Set Test Token
+          </Button>
+          <Button
+            onClick={handleTestAPI}
+            variant="outlined"
+            size="small"
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              opacity: 0.7,
+            }}
+          >
+            Test API
+          </Button>
+        </Box>
+      </Box>
       
       <Box sx={{ mb: 4 }}>
         <Grid container spacing={3}>
@@ -204,11 +263,12 @@ export default function ClosedTradesPage() {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} md={3} sx={{ display: 'flex', gap: 2 }}>
+          <Grid item xs={12} md={3} sx={{ display: 'flex', gap: 1 }}>
             <Button
               variant="contained"
               color="primary"
               onClick={handleSearch}
+              disabled={loading}
               sx={{ flex: 1 }}
             >
               SEARCH
@@ -217,18 +277,36 @@ export default function ClosedTradesPage() {
               variant="contained"
               color="secondary"
               onClick={handleReset}
+              disabled={loading}
               sx={{ flex: 1 }}
             >
               RESET
             </Button>
+            <IconButton
+              onClick={handleRefresh}
+              disabled={loading}
+              color="primary"
+            >
+              <RefreshIcon />
+            </IconButton>
           </Grid>
         </Grid>
       </Box>
       
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
       <Box sx={{ mt: 2 }}>
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          Showing 20 of 19510 items.
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="body2">
+            {loading ? 'Loading...' : `Showing ${trades.length} of ${total} items.`}
+          </Typography>
+          {loading && <CircularProgress size={20} />}
+        </Box>
         
         <TableContainer component={Paper} sx={{ 
           boxShadow: 'none',
@@ -238,7 +316,7 @@ export default function ClosedTradesPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ width: '100px' }}></TableCell>
+                <TableCell sx={{ width: '100px' }}>Actions</TableCell>
                 <TableCell sx={{ ...tableHeaderStyle, width: '100px' }}>ID</TableCell>
                 <TableCell sx={tableHeaderStyle}>Scrip</TableCell>
                 <TableCell sx={tableHeaderStyle}>Segment</TableCell>
@@ -247,29 +325,38 @@ export default function ClosedTradesPage() {
                 <TableCell sx={tableHeaderStyle}>Sell Rate</TableCell>
                 <TableCell sx={tableHeaderStyle}>Lots / Units</TableCell>
                 <TableCell sx={tableHeaderStyle}>Profit/Loss</TableCell>
+                <TableCell sx={tableHeaderStyle}>Time Diff</TableCell>
+                <TableCell sx={tableHeaderStyle}>Bought at</TableCell>
+                <TableCell sx={tableHeaderStyle}>Sold at</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length === 0 ? (
+              {loading ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    No data available
+                  <TableCell colSpan={12} align="center" sx={{ py: 4 }}>
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              ) : trades.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={12} align="center" sx={{ py: 4 }}>
+                    No closed trades found
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => (
-                  <TableRow key={row.id} hover>
+                trades.map((trade) => (
+                  <TableRow key={trade.id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <IconButton 
                           size="small"
-                          onClick={() => handleViewClick(row.id)}
+                          onClick={() => handleViewClick(trade.id)}
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                         <IconButton 
                           size="small" 
-                          onClick={() => handleEditClick(row.id)}
+                          onClick={() => handleEditClick(trade.id)}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
@@ -278,28 +365,44 @@ export default function ClosedTradesPage() {
                         </IconButton>
                       </Box>
                     </TableCell>
-                    <TableCell>{row.id}</TableCell>
-                    <TableCell>{row.scrip}</TableCell>
-                    <TableCell>{row.segment}</TableCell>
-                    <TableCell>{row.userId} : {row.username}</TableCell>
-                    <TableCell>{row.buyRate}</TableCell>
-                    <TableCell>{row.sellRate}</TableCell>
-                    <TableCell>{row.lotsUnits}</TableCell>
+                    <TableCell>{trade.id || trade._id || 'N/A'}</TableCell>
+                    <TableCell>{trade.script || trade.symbol || trade.scrip || 'N/A'}</TableCell>
+                    <TableCell>{trade.segment || 'N/A'}</TableCell>
+                    <TableCell>{trade.user_id || trade.userId || 'N/A'} : {trade.name || 'N/A'}</TableCell>
+                    <TableCell>{trade.buy_rate || trade.buyRate || 'N/A'}</TableCell>
+                    <TableCell>{trade.sell_rate || trade.sellRate || 'N/A'}</TableCell>
+                    <TableCell>{trade.lots || trade.units || 'N/A'}</TableCell>
                     <TableCell sx={{ 
-                      color: parseFloat(row.profit) > 0 
+                      color: parseFloat(String(trade.profit || trade.pnl || 0)) > 0 
                         ? 'success.main' 
-                        : parseFloat(row.profit) < 0 
+                        : parseFloat(String(trade.profit || trade.pnl || 0)) < 0 
                           ? 'error.main' 
                           : 'text.primary'
                     }}>
-                      {row.profit}
+                      {trade.profit || trade.pnl || '0'}
                     </TableCell>
+                    <TableCell>{trade.timeDifferenceInSeconds || trade.timeDiff || 'N/A'}</TableCell>
+                    <TableCell>{trade.Bought_at || trade.boughtAt || trade.createdAt || 'N/A'}</TableCell>
+                    <TableCell>{trade.Sold_at || trade.soldAt || trade.updatedAt || 'N/A'}</TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              disabled={loading}
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   );
