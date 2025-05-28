@@ -40,6 +40,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled, alpha } from '@mui/material/styles';
+import { API_BASE_URL } from '@/config';
 
 interface WithdrawalRequest {
   payment_method: string;
@@ -208,7 +209,7 @@ const WithdrawalRequests = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://13.233.225.7:8000/api/AllWithdraw', {
+      const response = await fetch(`${API_BASE_URL}/api/AllWithdraw`, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -267,7 +268,7 @@ const WithdrawalRequests = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${selectedRequest._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/updateWithdrawReq/${selectedRequest._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': token,
@@ -305,7 +306,7 @@ const WithdrawalRequests = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${selectedRequest._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/updateWithdrawReq/${selectedRequest._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': token,
@@ -362,7 +363,7 @@ const WithdrawalRequests = () => {
 
       // Process all selected requests sequentially
       const requests = selectedRequests.map(async (requestId) => {
-        const response = await fetch(`http://13.233.225.7:8000/api/updateWithdrawReq/${requestId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/updateWithdrawReq/${requestId}`, {
           method: 'PUT',
           headers: {
             'Authorization': token,

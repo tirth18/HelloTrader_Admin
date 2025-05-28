@@ -1,1 +1,2 @@
-export const API_BASE_URL = "http://13.233.225.7:8000";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://namotrader.live";

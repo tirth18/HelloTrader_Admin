@@ -32,6 +32,7 @@ import {
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/config';
 
 export default function CreatePendingOrderPage() {
   const theme = useTheme();
@@ -106,7 +107,7 @@ export default function CreatePendingOrderPage() {
     try {
       const token = getAuthToken();
 
-      const response = await fetch('http://13.233.225.7:8000/api/getAllScriptName', {
+      const response = await fetch(`${API_BASE_URL}/api/getAllScriptName`, {
         headers: {
           'Authorization': token
         }
@@ -202,7 +203,7 @@ export default function CreatePendingOrderPage() {
     try {
       const token = getAuthToken();
 
-      const response = await fetch('http://13.233.225.7:8000/api/getAllUserId', {
+      const response = await fetch(`${API_BASE_URL}/api/getAllUserId`, {
         headers: {
           'Authorization': token
         }
@@ -411,7 +412,7 @@ export default function CreatePendingOrderPage() {
       const token = getAuthToken();
       
       // Call API to create trade - ensure there's no space in the URL
-      const response = await fetch('http://13.233.225.7:8000/api/createTrade2', {
+      const response = await fetch(`${API_BASE_URL}/api/createTrade2`, {
         method: 'POST',
         headers: {
           'Authorization': token,

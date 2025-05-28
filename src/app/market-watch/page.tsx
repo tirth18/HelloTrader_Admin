@@ -46,6 +46,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import io from 'socket.io-client';
+import { API_BASE_URL } from '@/config';
 
 export default function MarketWatchPage() {
   const theme = useTheme();
@@ -117,7 +118,7 @@ export default function MarketWatchPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        'http://13.233.225.7:8000/api/Allscript',
+        `${API_BASE_URL}/api/Allscript`,
         {
           headers: { Authorization: `${token}` },
         }
@@ -197,7 +198,7 @@ export default function MarketWatchPage() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://13.233.225.7:8000/api/Allscript`,
+        `${API_BASE_URL}/api/Allscript`,
         {
           headers: { Authorization: `${token}` },
         }
@@ -519,7 +520,7 @@ export default function MarketWatchPage() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://13.233.225.7:8000'}/api/clients/active`,
+        `${API_BASE_URL}/api/clients/active`,
         {
           headers: { Authorization: `${token}` },
         }
@@ -557,7 +558,7 @@ export default function MarketWatchPage() {
       
       // Make the API call to update the script as banned
       const response = await axios.put(
-        `http://13.233.225.7:8000/api/updatescript/${scriptId}`,
+        `${API_BASE_URL}/api/updatescript/${scriptId}`,
         { isBan: true },
         {
           headers: { Authorization: `${token}` },

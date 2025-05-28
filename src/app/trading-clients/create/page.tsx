@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import { Box, Typography, Paper, Grid, TextField, InputAdornment, Checkbox, FormControlLabel, Select, MenuItem, InputLabel, FormControl, Button, Snackbar, Alert, AlertColor } from '@mui/material';
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 export default function CreateTradingClientPage() {
   const theme = useTheme();
@@ -288,7 +289,7 @@ export default function CreateTradingClientPage() {
       };
 
       // Call the API
-      const response = await axios.post('http://13.233.225.7:8000/api/user/register', payload, {
+      const response = await axios.post(`${API_BASE_URL}/api/user/register`, payload, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token

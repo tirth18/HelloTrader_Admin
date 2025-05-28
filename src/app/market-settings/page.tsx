@@ -19,6 +19,7 @@ import {
   Divider,
 } from '@mui/material';
 import { Settings as SettingsIcon } from '@mui/icons-material';
+import { API_BASE_URL } from '@/config';
 
 const MarketSettingsPage = () => {
   const theme = useTheme();
@@ -83,7 +84,7 @@ const MarketSettingsPage = () => {
       // Make sure to trim the token and properly format it
       const cleanToken = token.trim();
       
-      const response = await fetch('http://13.233.225.7:8000/api/createSetting', {
+      const response = await fetch(`${API_BASE_URL}/api/createSetting`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
