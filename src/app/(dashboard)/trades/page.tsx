@@ -171,6 +171,35 @@ const TradesPage = () => {
     setSegment(event.target.value);
   };
 
+  const handleExportTrades = () => {
+    // Check if both dates are selected
+    if (!fromDate || !toDate) {
+      alert('Please select a From and To date before exporting trades.');
+      
+      // Focus the missing date field
+      if (!fromDate) {
+        const fromDateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+        if (fromDateInput) fromDateInput.focus();
+      } else if (!toDate) {
+        const toDateInputs = document.querySelectorAll('input[type="date"]');
+        const toDateInput = toDateInputs[1] as HTMLInputElement;
+        if (toDateInput) toDateInput.focus();
+      }
+      
+      return;
+    }
+
+    // Validate date range
+    if (new Date(fromDate) > new Date(toDate)) {
+      alert('From Date cannot be later than To Date.');
+      return;
+    }
+
+    // Proceed with export
+    console.log('Exporting trades from', fromDate, 'to', toDate);
+    // Add your export logic here
+  };
+
   const darkModeStyles = mode === 'dark' ? {
     backgroundColor: alpha('#1e293b', 0.9),
     color: '#fff',
@@ -254,7 +283,7 @@ const TradesPage = () => {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <TextField
             label="From Date"
-            type="text"
+            type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
             placeholder="From Date"
@@ -263,7 +292,7 @@ const TradesPage = () => {
           />
           <TextField
             label="To Date"
-            type="text"
+            type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
             placeholder="To Date"
@@ -274,6 +303,7 @@ const TradesPage = () => {
 
         <Button
           variant="contained"
+          onClick={handleExportTrades}
           sx={{
             bgcolor: '#26a69a',
             '&:hover': {

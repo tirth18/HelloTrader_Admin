@@ -18,6 +18,7 @@ import { RootState } from '../../store';
 import { toggleSidebar } from '../../store/slices/uiSlice';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import useTokenPersistence from '@/hooks/useTokenPersistence';
+import { useGlobalScrollbar } from '@/hooks/useScrollbar';
 
 const drawerWidth = 240;
 
@@ -25,7 +26,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
 }>(({ theme, open }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
+  padding: theme.spacing(1),
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -34,9 +35,16 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   width: 'calc(100% - 7px)',
   backgroundColor: theme.palette.background.default,
   minHeight: '100vh',
+  height: '100vh',
+  overflow: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
   [theme.breakpoints.up('sm')]: {
     marginLeft: 'calc(6px + 1px)',
     width: 'calc(100% - 7px)',
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(0.5),
   },
   ...(open && {
     marginLeft: drawerWidth,
@@ -62,6 +70,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   // Use token persistence hook
   useTokenPersistence();
   
+  // Use global scrollbar hook to ensure scrollbars work properly
+  useGlobalScrollbar();
+  
   // Verify token exists on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -79,7 +90,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <Box sx={{ 
       display: 'flex', 
       minHeight: '100vh',
+      height: '100vh',
       bgcolor: 'background.default',
+      overflow: 'hidden',
     }}>
       <CssBaseline />
       <Header />
@@ -89,20 +102,33 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <Container 
           maxWidth={false}
           sx={{ 
-            minHeight: 'calc(100vh - 64px)',
+            flex: 1,
             display: 'flex',
             flexDirection: 'column',
             p: 0,
+            m: 0,
+            maxWidth: 'none !important',
+            width: '100%',
+            height: 'calc(100vh - 64px)',
+            overflow: 'auto',
           }}
         >
           <Fade in={true} timeout={500}>
             <Box 
               sx={{ 
-                flexGrow: 1,
-                borderRadius: theme.shape.borderRadius * 2,
-                overflow: 'hidden',
-                bgcolor: 'background.paper',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.05)',
+                flex: 1,
+                width: '100%',
+                minHeight: '100%',
+                borderRadius: 0,
+                overflow: 'visible',
+                bgcolor: 'transparent',
+                boxShadow: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                '& > *': {
+                  flex: 1,
+                  minHeight: 0,
+                },
               }}
             >
               {children}

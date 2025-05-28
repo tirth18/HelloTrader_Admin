@@ -8,7 +8,7 @@ export const fetchWithAuth = async (
 
   const defaultHeaders = {
     "Content-Type": "application/json",
-    Authorization: token ? `Bearer ${token}` : "",
+    Authorization: token ? ` ${token}` : "",
   };
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -79,6 +79,63 @@ export const getAllUsers = async () => {
     return data;
   } catch (error) {
     console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const fetchScriptNames = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch('http://13.233.225.7:8000/api/getAllScriptName', {
+      headers: {
+        'Authorization': token
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch script names');
+    }
+
+    const data = await response.json();
+    // Return an array of script names
+    return data.map((script: any) => ({
+      id: script._id,
+      name: script.scriptname,
+      segment: script.segment,
+      lotSize: script.lotSize,
+      instrumentToken: script.instrument_token
+    }));
+  } catch (error) {
+    console.error('Error fetching script names:', error);
+    throw error;
+  }
+};
+
+export const fetchUserIds = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch('http://13.233.225.7:8000/api/getAllUserId', {
+      headers: {
+        'Authorization': token
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user IDs');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching user IDs:', error);
     throw error;
   }
 };

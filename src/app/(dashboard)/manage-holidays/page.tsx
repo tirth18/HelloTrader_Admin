@@ -141,7 +141,7 @@ export default function ManageHolidaysPage() {
                     }
                   }}
                 >
-                  ADD HOLIDAY
+                  ADD HOLIDAYS
                 </Button>
               </Box>
 
