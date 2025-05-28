@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://192.168.1.6:8003/api/v1";
+import { API_BASE_URL } from "@/config";
 
 export const fetchWithAuth = async (
   endpoint: string,
@@ -63,7 +63,7 @@ export const getAllUsers = async () => {
   const token = localStorage.getItem("token");
 
   try {
-    const response = await fetch("http://13.233.225.7:8000/api/getAllUser", {
+    const response = await fetch(`${API_BASE_URL}/api/getAllUser`, {
       method: "GET",
       headers: {
         Authorization: token || "",

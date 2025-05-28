@@ -13,6 +13,7 @@ import {
   Alert,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
+import { API_BASE_URL } from '@/config';
 
 interface BankDetails {
   account_Holder: string;
@@ -59,7 +60,7 @@ export default function BankingPage() {
         return;
       }
 
-      const response = await fetch('http://13.233.225.7:8000/api/getBank', {
+      const response = await fetch(`${API_BASE_URL}/api/getBank`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -117,7 +118,7 @@ export default function BankingPage() {
         setLoading(false);
         return;
       }
-      const response = await fetch('http://13.233.225.7:8000/api/createBank', {
+      const response = await fetch(`${API_BASE_URL}/api/createBank`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

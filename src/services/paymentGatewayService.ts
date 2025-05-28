@@ -1,6 +1,5 @@
 import { PaymentGateway } from "@/types/paymentGateway";
-
-const API_BASE_URL = "http://13.233.225.7:8000";
+import { API_BASE_URL } from "@/config";
 
 const getAuthToken = () => {
   return localStorage.getItem("token") || "";
