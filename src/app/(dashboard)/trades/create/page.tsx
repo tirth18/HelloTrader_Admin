@@ -20,6 +20,22 @@ import {
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import { fetchScriptNames, fetchUserIds } from '@/utils/api';
+
+interface Script {
+  id: string;
+  name: string;
+  segment: string;
+  lotSize: number;
+  instrumentToken: string;
+}
+
+interface User {
+  _id: string;
+  name: string;
+  user_id: string;
+  [key: string]: any;
+}
 
 const CreateTradePage = () => {
   const theme = useTheme();
@@ -34,24 +50,101 @@ const CreateTradePage = () => {
   const [sellRate, setSellRate] = useState('HELOADMIN');
   const [transactionPassword, setTransactionPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [scriptOptions, setScriptOptions] = useState<Script[]>([]);
+  const [isLoadingScripts, setIsLoadingScripts] = useState(false);
+  const [userOptions, setUserOptions] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
-  // Sample data for dropdowns
-  const scripOptions = ['NIFTY', 'BANKNIFTY', 'RELIANCE', 'TCS', 'Mega'];
-  const userOptions = ['User 1', 'User 2', 'User 3', 'User 4'];
+  const handleScriptDropdownOpen = async () => {
+    try {
+      setIsLoadingScripts(true);
+      const scripts = await fetchScriptNames();
+      setScriptOptions(scripts);
+    } catch (error) {
+      console.error('Error loading scripts:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoadingScripts(false);
+    }
+  };
 
-  const handleSave = () => {
-    // Save logic would go here
-    console.log('Saving trade:', {
-      scrip,
-      userId,
-      lotsUnits,
-      buyRate,
-      sellRate,
-      transactionPassword
-    });
-    
-    // Navigate back to trades list
-    router.push('/trades');
+  const handleUserDropdownOpen = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const users = await fetchUserIds();
+      setUserOptions(users);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      // Validate required fields
+      if (!scrip || !userId || !lotsUnits || !buyRate || !transactionPassword) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      // Get selected script and user data
+      const selectedScript = scriptOptions.find(script => script.id === scrip);
+      const selectedUser = userOptions.find(user => user._id === userId);
+
+      if (!selectedScript || !selectedUser) {
+        alert('Invalid script or user selection');
+        return;
+      }
+
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Authentication token not found');
+        return;
+      }
+
+      // Prepare request body
+      const requestBody = {
+        script: selectedScript.name,
+        segment: selectedScript.segment.toLowerCase(),
+        buy_rate: parseFloat(buyRate),
+        lots: lotsUnits,
+        status: "active",
+        purchaseType: "buy",
+        broker_id: selectedUser.broker_id,
+        lot_size: selectedScript.lotSize,
+        tradeType: "market",
+        ipAddress: "127.0.0.1", // You might want to get actual IP
+        symbol: selectedScript.name,
+        instrumentToken: selectedScript.instrumentToken,
+        user_id: selectedUser._id
+      };
+
+      // Call API
+      const response = await fetch('http://13.233.225.7:8000/api/createTrade2', {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create trade');
+      }
+
+      const result = await response.json();
+      console.log('Trade created successfully:', result);
+      
+      // Navigate back to trades list
+      router.push('/trades');
+    } catch (error) {
+      console.error('Error creating trade:', error);
+      alert('Failed to create trade. Please try again.');
+    }
   };
 
   const darkModeStyles = mode === 'dark' ? {
@@ -148,18 +241,67 @@ const CreateTradePage = () => {
                     py: 1.5,
                   }
                 }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 250,
+                      overflow: 'hidden',
+                      '& .MuiMenu-list': {
+                        maxHeight: 250,
+                        overflowY: 'auto',
+                        padding: 0,
+                        '&::-webkit-scrollbar': {
+                          width: '8px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          backgroundColor: alpha('#f1f5f9', 0.1),
+                          borderRadius: '4px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: alpha('#64748b', 0.6),
+                          borderRadius: '4px',
+                          '&:hover': {
+                            backgroundColor: alpha('#64748b', 0.8),
+                          },
+                        },
+                      },
+                    },
+                  },
+                  MenuListProps: {
+                    sx: {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                      padding: 0,
+                    },
+                  },
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                }}
                 renderValue={selected => {
                   if (!selected) {
                     return <Typography sx={{ color: mode === 'dark' ? alpha('#fff', 0.5) : '#777' }}>Select Scrip</Typography>;
                   }
-                  return selected;
+                  const selectedScript = scriptOptions.find(script => script.id === selected);
+                  return selectedScript ? selectedScript.name : selected;
                 }}
+                onOpen={handleScriptDropdownOpen}
+                disabled={isLoadingScripts}
               >
-                {scripOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
+                {isLoadingScripts ? (
+                  <MenuItem disabled>Loading scripts...</MenuItem>
+                ) : (
+                  scriptOptions.map((script) => (
+                    <MenuItem key={script.id} value={script.id}>
+                      {script.name} ({script.segment})
+                    </MenuItem>
+                  ))
+                )}
               </Select>
             </FormControl>
           </Box>
@@ -244,18 +386,67 @@ const CreateTradePage = () => {
                     py: 1.5,
                   }
                 }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      overflow: 'hidden',
+                      '& .MuiMenu-list': {
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                        padding: 0,
+                        '&::-webkit-scrollbar': {
+                          width: '8px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          backgroundColor: alpha('#f1f5f9', 0.1),
+                          borderRadius: '4px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: alpha('#64748b', 0.6),
+                          borderRadius: '4px',
+                          '&:hover': {
+                            backgroundColor: alpha('#64748b', 0.8),
+                          },
+                        },
+                      },
+                    },
+                  },
+                  MenuListProps: {
+                    sx: {
+                      maxHeight: 200,
+                      overflowY: 'auto',
+                      padding: 0,
+                    },
+                  },
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                }}
                 renderValue={selected => {
                   if (!selected) {
                     return <Typography sx={{ color: mode === 'dark' ? alpha('#fff', 0.5) : '#777' }}>Select User</Typography>;
                   }
-                  return selected;
+                  const selectedUser = userOptions.find(user => user._id === selected);
+                  return selectedUser ? `${selectedUser.user_id} : ${selectedUser.name}` : selected;
                 }}
+                onOpen={handleUserDropdownOpen}
+                disabled={isLoadingUsers}
               >
-                {userOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
+                {isLoadingUsers ? (
+                  <MenuItem disabled>Loading users...</MenuItem>
+                ) : (
+                  userOptions.map((user) => (
+                    <MenuItem key={user._id} value={user._id}>
+                      {user.user_id} : {user.name}
+                    </MenuItem>
+                  ))
+                )}
               </Select>
             </FormControl>
           </Box>
